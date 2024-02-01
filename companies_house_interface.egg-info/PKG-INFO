@@ -1,4 +1,8 @@
 Metadata-Version: 2.1
 Name: companies_house_interface
 Version: 0.1.0
-Requires-Dist: Click
+Requires-Dist: requests~=2.31.0
+Requires-Dist: neo4j~=5.16.0
+Requires-Dist: click~=8.1.7
+Requires-Dist: XlsxWriter~=3.1.9
+Requires-Dist: pandas~=2.0.3

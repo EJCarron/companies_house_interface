@@ -1,2 +1,2 @@
 [console_scripts]
-chi = chi:chi
+chi = src.scripts.chi:chi
