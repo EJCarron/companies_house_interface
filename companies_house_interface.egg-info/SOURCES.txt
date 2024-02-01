@@ -1,0 +1,9 @@
+README.md
+chi.py
+setup.py
+companies_house_interface.egg-info/PKG-INFO
+companies_house_interface.egg-info/SOURCES.txt
+companies_house_interface.egg-info/dependency_links.txt
+companies_house_interface.egg-info/entry_points.txt
+companies_house_interface.egg-info/requires.txt
+companies_house_interface.egg-info/top_level.txt
