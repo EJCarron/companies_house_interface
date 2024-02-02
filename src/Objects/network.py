@@ -1,4 +1,6 @@
 import json
+import sys
+
 from .GraphObjects.Nodes.company import Company
 from .GraphObjects.Nodes.officer import Officer
 from .GraphObjects.Relationships.appointment import Appointment
@@ -104,6 +106,10 @@ class Network:
 
                                                                   )
 
+        if core_officer is None:
+            print("Incorrect Officer ID")
+            sys.exit()
+
         network = cls(officers={core_officer.officer_id: core_officer}, companies={}, appointments=[])
 
         new_companies, requests_count = network.process_officer_appointments(officer=core_officer,
@@ -175,10 +181,18 @@ class Network:
         core_officers = {}
 
         for officer_id in officer_ids:
+            print(officer_id)
             core_officer, requests_count = Officer.pull_data_and_init(officer_id=officer_id,
                                                                       appointments_limit=appointments_limit,
                                                                       requests_count=requests_count)
+            if core_officer is None:
+                print('{0} officer id does not exist'.format(officer_id))
+
             core_officers[officer_id] = core_officer
+
+        if len(core_officers.values()) == 0:
+            print('No officers to work with')
+            sys.exit()
 
         network = cls(officers=core_officers, companies={}, appointments=[])
 

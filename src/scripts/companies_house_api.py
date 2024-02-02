@@ -2,12 +2,13 @@ import datetime
 import time
 import requests
 import json
-from .config import config
+from . import helpers
 
 base_url = 'https://api.company-information.service.gov.uk/'
 
 
 def get_officer(officer_id, appointments_limit, requests_count):
+
     url = 'https://api.company-information.service.gov.uk/officers/{officer_id}/appointments'.format(
         officer_id=officer_id)
 
@@ -70,6 +71,7 @@ def get_company_officer_ids(company_number, appointments_limit, requests_count):
 
 
 def get_company(company_number, requests_count):
+    config = helpers.get_config()
     requests_count = requests_check(requests_count)
 
     url = base_url + '/company/{companyNumber}'.format(companyNumber=company_number)
@@ -86,6 +88,7 @@ def get_company(company_number, requests_count):
 
 
 def get_with_paging(url, appointments_limit, requests_count):
+    config = helpers.get_config()
     items_per_page = 35
     start_index = 0
 
