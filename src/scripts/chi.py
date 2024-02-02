@@ -3,6 +3,7 @@ from ..Objects.network import Network
 import click
 from neo4j import GraphDatabase
 
+
 @click.group()
 def chi():
     pass
@@ -54,6 +55,7 @@ def creategraph(officer_ids, layers, appointments_limit):
     with graphDB_Driver.session() as graphDB_Session:
         graphDB_Session.run(create_cypher)
 
+
 @chi.command()
 @click.option("--path", "-p", prompt="path to the save location.")
 @click.option("--officer_ids", "-oid", multiple=True,
@@ -79,3 +81,17 @@ def savejson(officer_ids, layers, appointments_limit, path):
     network.expand_network(requests_count=requests_counter, layers=layers, appointments_limit=appointments_limit)
 
     network.save_json(path=path)
+
+
+@chi.command()
+@click.option("--path", "-p", prompt="path to the save location.")
+def loadjsoncreategraph(path):
+    config = helpers.check_and_init_config()
+    network = Network.load_json(path)
+
+    cypher = network.render_create_cypher()
+
+    graphDB_Driver = GraphDatabase.driver(config.uri, auth=(config.username, config.pw))
+
+    with graphDB_Driver.session() as graphDB_Session:
+        graphDB_Session.run(cypher)
