@@ -4,10 +4,10 @@
 The Companies House Interface (or chi for short) is a command line application for
 pulling data from the UK Companies House, making connections between people and companies,
 and then saving the data in various formats:
-    - Neo4j graph database
-    - json
-    - csv
-    - xlsx spreadsheets.
+- Neo4j graph database
+- json
+- csv
+- xlsx spreadsheets.
 
 ### Here is an example work flow:
 
@@ -16,7 +16,7 @@ For example the social media landlord Samuel Leeds:
 
 ![A screenshot of Samuel Leeds Companies House profile](/imgs/companies_house.png)
 
-You then go to webpages url and copy the officer id, in this example it is
+You then go to the webpages url and copy the officer id, in this example it is
 "c9MBFivRCmMdFZqdtmTcJnBqd54".
 
 You then take the id and perform the following command:
