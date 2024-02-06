@@ -30,9 +30,9 @@ def setconfig(normal_key, uri, username, pw):
               prompt="the Companies House ID of the person that you want to find the "
                      "network of.",
               help="Can be found in the url of the person\'s Companies House profile.")
-@click.option("--layers", prompt="The number of times you want to expand the network outwards", default=1,
+@click.option("--layers", "-l", prompt="The number of times you want to expand the network outwards", default=1,
               help="Warning networks can quickly become extremely large, not recommended to exceed 2 to 3 layers.")
-@click.option("--appointments_limit", default=100,
+@click.option("--appointments_limit", "-al", default=100,
               prompt="The limit for the number of appointments the program will pull. If the number exceeds the limit "
                      "the officer will still be pulled but without it\' related companies and appointments.",
               help="If no limit wanted set to -1. NOT ADVISED some officers can have extremely large number of "
@@ -62,9 +62,9 @@ def creategraph(officer_ids, layers, appointments_limit):
               prompt="the Companies House ID of the person that you want to find the "
                      "network of.",
               help="Can be found in the url of the person\'s Companies House profile.", default=[''])
-@click.option("--layers", prompt="The number of times you want to expand the network outwards", default=1,
+@click.option("--layers", "-l", prompt="The number of times you want to expand the network outwards", default=1,
               help="Warning networks can quickly become extremely large, not recommended to exceed 2 to 3 layers.")
-@click.option("--appointments_limit", default=100,
+@click.option("--appointments_limit", "-al", default=100,
               prompt="The limit for the number of appointments the program will pull. If the number exceeds the limit "
                      "the officer will still be pulled but without it\' related companies and appointments.",
               help="If no limit wanted set to -1. NOT ADVISED some officers can have extremely large number of "
@@ -102,9 +102,9 @@ def loadjsoncreategraph(path):
               prompt="the Companies House ID of the person that you want to find the "
                      "network of.",
               help="Can be found in the url of the person\'s Companies House profile.", default=[''])
-@click.option("--layers", prompt="The number of times you want to expand the network outwards", default=1,
+@click.option("--layers", "-l", prompt="The number of times you want to expand the network outwards", default=1,
               help="Warning networks can quickly become extremely large, not recommended to exceed 2 to 3 layers.")
-@click.option("--appointments_limit", default=100,
+@click.option("--appointments_limit", "-al", default=100,
               prompt="The limit for the number of appointments the program will pull. If the number exceeds the limit "
                      "the officer will still be pulled but without it\' related companies and appointments.",
               help="If no limit wanted set to -1. NOT ADVISED some officers can have extremely large number of "
@@ -129,9 +129,9 @@ def savecsvs(officer_ids, layers, appointments_limit, path):
               prompt="the Companies House ID of the person that you want to find the "
                      "network of.",
               help="Can be found in the url of the person\'s Companies House profile.", default=[''])
-@click.option("--layers", prompt="The number of times you want to expand the network outwards", default=1,
+@click.option("--layers", "-l", prompt="The number of times you want to expand the network outwards", default=1,
               help="Warning networks can quickly become extremely large, not recommended to exceed 2 to 3 layers.")
-@click.option("--appointments_limit", default=100,
+@click.option("--appointments_limit", "-al", default=100,
               prompt="The limit for the number of appointments the program will pull. If the number exceeds the limit "
                      "the officer will still be pulled but without it\' related companies and appointments.",
               help="If no limit wanted set to -1. NOT ADVISED some officers can have extremely large number of "
