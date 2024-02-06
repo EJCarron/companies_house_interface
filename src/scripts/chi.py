@@ -84,20 +84,6 @@ def savejson(officer_ids, layers, appointments_limit, path):
 
 
 @chi.command()
-@click.option("--path", "-p", prompt="path to the save location.")
-def loadjsoncreategraph(path):
-    config = helpers.check_and_init_config()
-    network = Network.load_json(path)
-
-    cypher = network.render_create_cypher()
-
-    graphDB_Driver = GraphDatabase.driver(config.uri, auth=(config.username, config.pw))
-
-    with graphDB_Driver.session() as graphDB_Session:
-        graphDB_Session.run(cypher)
-
-
-@chi.command()
 @click.option("--officer_ids", "-oid", multiple=True,
               prompt="the Companies House ID of the person that you want to find the "
                      "network of.",
@@ -138,7 +124,7 @@ def savecsvs(officer_ids, layers, appointments_limit, path):
                    "appointments. "
               )
 @click.option("--path", "-p", prompt="path to the save location.", help="must have name of new file (or existing file"
-              " that you want to overwrite) with .xlsx at end. For example /Users/johndoe/Desktop/SugarNetwork.xlsx")
+                                                                        " that you want to overwrite) with .xlsx at end. For example /Users/johndoe/Desktop/SugarNetwork.xlsx")
 def savexlsx(officer_ids, layers, appointments_limit, path):
     requests_counter = 0
 
@@ -149,3 +135,35 @@ def savexlsx(officer_ids, layers, appointments_limit, path):
     network.expand_network(requests_count=requests_counter, layers=layers, appointments_limit=appointments_limit)
 
     network.save_xlsx(path=path)
+
+
+@chi.command()
+@click.option("--path", "-p", prompt="path to the save location.")
+def loadjsoncreategraph(path):
+    config = helpers.check_and_init_config()
+    network = Network.load_json(path)
+
+    cypher = network.render_create_cypher()
+
+    graphDB_Driver = GraphDatabase.driver(config.uri, auth=(config.username, config.pw))
+
+    with graphDB_Driver.session() as graphDB_Session:
+        graphDB_Session.run(cypher)
+
+
+@chi.command()
+@click.option("--save_path", "-sp", prompt="path to the save location.")
+@click.option("--load_path", "-lp", prompt="path to the saved json location.")
+def loadjsonsavecsvs(load_path, save_path):
+    network = Network.load_json(load_path)
+
+    network.save_csvs(save_path)
+
+
+@chi.command()
+@click.option("--save_path", "-sp", prompt="path to the save location.")
+@click.option("--load_path", "-lp", prompt="path to the saved json location.")
+def loadjsonsavexlsx(load_path, save_path):
+    network = Network.load_json(load_path)
+
+    network.save_xlsx(save_path)
