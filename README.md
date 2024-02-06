@@ -118,3 +118,10 @@ if you have saved a network to json you can convert it to a Neo4j graph DB.
 | parameter | long   | short  |
 |-----------|--------|--------|
 | json path | --path | --path |
+
+
+## Issues and contact
+
+This is an early alpha of this project, so there may still be kinks that I haven't come across and ironed out yet. If
+you run into any issues, need a hand setting up, or have any suggestions contact me on Twitter @edcarron. I have my dms
+open and would love to hear from people!
