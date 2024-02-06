@@ -74,15 +74,16 @@ You will then be prompted to enter 4 things:
 
 
 > [!NOTE]
-> The following commands all have these options 
-> --officer_ids, can be called multiple times if you wish to start from multiple people.
-> --layers refers to how many times you wish to expand the business networks layers. It defaults to 1, which means that
-> it fetches the data of the starting officers, their companies, the other officers of those companies and all of their 
-> companies. Each subsequent layer repeats this proces expanding outward, it is not recommended to set this higher than
-> 2 or 3 as the networks can become extremely large.
-> --appointment_limit filters out any officer with a large number of appointments. There are some people and organisations
-> that sit on the board of thousands of companies. Expanding a network from one of these officers could lead to the network 
-> expanding to 10 or 100s of thousands of nodes.
+> The following commands all have these options
+
+- --officer_ids, can be called multiple times if you wish to start from multiple people.
+- --layers refers to how many times you wish to expand the business networks layers. It defaults to 1, which means that
+ it fetches the data of the starting officers, their companies, the other officers of those companies and all of their 
+ companies. Each subsequent layer repeats this proces expanding outward, it is not recommended to set this higher than
+ 2 or 3 as the networks can become extremely large.
+- --appointment_limit filters out any officer with a large number of appointments. There are some people and organisations
+ that sit on the board of thousands of companies. Expanding a network from one of these officers could lead to the network 
+ expanding to 10 or 100s of thousands of nodes.
 
 
 **creategraph**
