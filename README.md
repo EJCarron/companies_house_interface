@@ -65,6 +65,13 @@ You will then be prompted to enter 4 things:
 > [!WARNING]
 > This command must be run before any others will work. You can run it again at anytime to change the config values.
 
+| parameter  | long         | short |
+|------------|--------------|-------|
+| normal key | --normal_key | -nk   | 
+| uri        | --uri        | -uri  |
+| username   | --username   | -un   |
+| password   | --pw         | -pw   |
+
 
 > [!NOTE]
 > The following commands all have these options 
@@ -81,19 +88,20 @@ You will then be prompted to enter 4 things:
 **creategraph**
 
 | parameter | long | short |
--------------------------------------
+|------------|------|-------|
 | Officer ids | --officer_ids | -oid | 
 | Network layers | --layers | -l |
 | Appointments limit | --appointments_limit | -al |
 
 
 
-**savejson**
-**savecsvs**
-**savexlsx**
+- **savejson**
+- **savecsvs**
+- **savexlsx**
 
-| parameter | long | short | path |"
--------------------------------------
+
+| parameter | long | short |
+|------------|------|-------|
 | Officer ids | --officer_ids | -oid | 
 | Network layers | --layers | -l |
 | Appointments limit | --appointments_limit | -al |
@@ -101,4 +109,11 @@ You will then be prompted to enter 4 things:
 
 > [!NOTE]
 > savecsvs writes multiple csv files, so you must provide a path to an existing directory that you wish to write to
-> rather than a path to the .csv files that you want to creat.
+> rather than a path to the .csv files that you want to create.
+
+**loadjsoncreategraph**
+if you have saved a network to json you can convert it to a Neo4j graph DB.
+
+| parameter | long   | short  |
+|-----------|--------|--------|
+| json path | --path | --path |
