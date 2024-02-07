@@ -15,6 +15,7 @@ def load_network(load_path):
 
     return network
 
+
 def check_and_init_config():
     try:
         with open("config.json", "r") as f:

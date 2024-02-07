@@ -104,7 +104,7 @@ You will then be prompted to enter 4 things:
  rather than a path to the .csv files that you want to create.
 
 > [!Warning]
-> The save_x_path arguments are destructive, they will overwrite any contents of files stored at save locations.
+> The save_x_path commands are destructive, they will overwrite any contents of files stored at save locations.
 
 
 ### if you have saved a network to json you can convert it to a Neo4j graph DB, csvs or xlsx.
