@@ -2,6 +2,7 @@ from . import helpers
 from ..Objects.network import Network
 import click
 from neo4j import GraphDatabase
+from . import save_network
 
 
 @click.group()
@@ -26,115 +27,62 @@ def setconfig(normal_key, uri, username, pw):
 
 
 @chi.command()
-@click.option("--officer_ids", "-oid", multiple=True,
-              prompt="the Companies House ID of the person that you want to find the "
-                     "network of.",
+@click.option("--officer_ids", "-oid", multiple=True, default=[], required=False,
               help="Can be found in the url of the person\'s Companies House profile.")
-@click.option("--layers", "-l", prompt="The number of times you want to expand the network outwards", default=1,
+@click.option("--company_numbers", "-cn", multiple=True, default=[], required=False,
+              help="Can be found in the url of the company\'s Companies House profile.")
+@click.option("--layers", "-l", default=1,
               help="Warning networks can quickly become extremely large, not recommended to exceed 2 to 3 layers.")
 @click.option("--appointments_limit", "-al", default=100,
-              prompt="The limit for the number of appointments the program will pull. If the number exceeds the limit "
-                     "the officer will still be pulled but without it\' related companies and appointments.",
               help="If no limit wanted set to -1. NOT ADVISED some officers can have extremely large number of "
                    "appointments. "
               )
-def creategraph(officer_ids, layers, appointments_limit):
+@click.option("--save_json_path", "-sjp", default="",
+              help="Path to the json save location, will not save if left blank")
+@click.option("--save_csvs_path", "-scp", default="", help="Path to the directory where you want to save your csvs,"
+                                                           "directory must already exist. Will not save if left blank")
+@click.option("--save_xlsx_path", "-sxp", default="",
+              help="Path to the xlsx save location, will not save if left blank")
+@click.option("--save_neo4j", "-sgdb", default=True, help="Bool for for whether to save the network as a graph DB."
+                                                          "Defaults to True.")
+def createnetwork(officer_ids, company_numbers, layers, appointments_limit, save_json_path, save_csvs_path,
+                  save_xlsx_path, save_neo4j):
     config = helpers.check_and_init_config()
-
     requests_counter = 0
 
-    network, requests_counter = Network.start(officer_ids=officer_ids,
-                                              requests_count=requests_counter,
-                                              appointments_limit=appointments_limit)
-
-    network.expand_network(requests_count=requests_counter, layers=layers, appointments_limit=appointments_limit)
-    create_cypher = network.render_create_cypher()
-
-    graphDB_Driver = GraphDatabase.driver(config.uri, auth=(config.username, config.pw))
-
-    with graphDB_Driver.session() as graphDB_Session:
-        graphDB_Session.run(create_cypher)
-
-
-@chi.command()
-@click.option("--path", "-p", prompt="path to the save location.")
-@click.option("--officer_ids", "-oid", multiple=True,
-              prompt="the Companies House ID of the person that you want to find the "
-                     "network of.",
-              help="Can be found in the url of the person\'s Companies House profile.", default=[''])
-@click.option("--layers", "-l", prompt="The number of times you want to expand the network outwards", default=1,
-              help="Warning networks can quickly become extremely large, not recommended to exceed 2 to 3 layers.")
-@click.option("--appointments_limit", "-al", default=100,
-              prompt="The limit for the number of appointments the program will pull. If the number exceeds the limit "
-                     "the officer will still be pulled but without it\' related companies and appointments.",
-              help="If no limit wanted set to -1. NOT ADVISED some officers can have extremely large number of "
-                   "appointments. "
-              )
-def savejson(officer_ids, layers, appointments_limit, path):
-    helpers.check_and_init_config()
-    requests_counter = 0
-
-    network, requests_counter = Network.start(officer_ids=officer_ids,
-                                              requests_count=requests_counter,
-                                              appointments_limit=appointments_limit)
+    network, requests_counter = Network.start(officer_ids=officer_ids, company_numbers=company_numbers,
+                                              appointments_limit=appointments_limit, requests_count=requests_counter)
 
     network.expand_network(requests_count=requests_counter, layers=layers, appointments_limit=appointments_limit)
 
-    network.save_json(path=path)
+    if save_json_path != "":
+        try:
+            save_network.save_json(network=network, path=save_json_path)
+        except Exception as e:
+            click.echo("failed to save json")
+            click.echo(e)
 
+    if save_csvs_path != "":
+        try:
+            save_network.save_csvs(network=network, path=save_csvs_path)
+        except Exception as e:
+            click.echo("failed to save csvs. REMINDER to save csvs provide path to existing directory not to a .csv "
+                       "file")
+            click.echo(e)
 
-@chi.command()
-@click.option("--officer_ids", "-oid", multiple=True,
-              prompt="the Companies House ID of the person that you want to find the "
-                     "network of.",
-              help="Can be found in the url of the person\'s Companies House profile.", default=[''])
-@click.option("--layers", "-l", prompt="The number of times you want to expand the network outwards", default=1,
-              help="Warning networks can quickly become extremely large, not recommended to exceed 2 to 3 layers.")
-@click.option("--appointments_limit", "-al", default=100,
-              prompt="The limit for the number of appointments the program will pull. If the number exceeds the limit "
-                     "the officer will still be pulled but without it\' related companies and appointments.",
-              help="If no limit wanted set to -1. NOT ADVISED some officers can have extremely large number of "
-                   "appointments. "
-              )
-@click.option("--path", "-p", prompt="path to the save directory (it must already exist).")
-def savecsvs(officer_ids, layers, appointments_limit, path):
-    helpers.check_and_init_config()
-    requests_counter = 0
+    if save_xlsx_path != "":
+        try:
+            save_network.save_xlsx(network=network, path=save_xlsx_path)
+        except Exception as e:
+            click.echo("failed to save xlsx")
+            click.echo(e)
 
-    network, requests_counter = Network.start(officer_ids=officer_ids,
-                                              requests_count=requests_counter,
-                                              appointments_limit=appointments_limit)
-
-    network.expand_network(requests_count=requests_counter, layers=layers, appointments_limit=appointments_limit)
-
-    network.save_csvs(directory_path=path)
-
-
-@chi.command()
-@click.option("--officer_ids", "-oid", multiple=True,
-              prompt="the Companies House ID of the person that you want to find the "
-                     "network of.",
-              help="Can be found in the url of the person\'s Companies House profile.", default=[''])
-@click.option("--layers", "-l", prompt="The number of times you want to expand the network outwards", default=1,
-              help="Warning networks can quickly become extremely large, not recommended to exceed 2 to 3 layers.")
-@click.option("--appointments_limit", "-al", default=100,
-              prompt="The limit for the number of appointments the program will pull. If the number exceeds the limit "
-                     "the officer will still be pulled but without it\' related companies and appointments.",
-              help="If no limit wanted set to -1. NOT ADVISED some officers can have extremely large number of "
-                   "appointments. "
-              )
-@click.option("--path", "-p", prompt="path to the save location.", help="must have name of new file (or existing file"
-                                                                        " that you want to overwrite) with .xlsx at end. For example /Users/johndoe/Desktop/SugarNetwork.xlsx")
-def savexlsx(officer_ids, layers, appointments_limit, path):
-    requests_counter = 0
-
-    network, requests_counter = Network.start(officer_ids=officer_ids,
-                                              requests_count=requests_counter,
-                                              appointments_limit=appointments_limit)
-
-    network.expand_network(requests_count=requests_counter, layers=layers, appointments_limit=appointments_limit)
-
-    network.save_xlsx(path=path)
+    if save_neo4j:
+        try:
+            save_network.save_neo4j(network=network, config=config)
+        except Exception as e:
+            click.echo("Failed to save neo4j graph db")
+            click.echo(e)
 
 
 @chi.command()

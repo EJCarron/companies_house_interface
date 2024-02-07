@@ -99,6 +99,81 @@ class Network:
                    )
 
     @classmethod
+    def init_officers(cls, officer_ids, appointments_limit, requests_count):
+        core_officers = {}
+
+        for officer_id in officer_ids:
+            print(officer_id)
+            core_officer, requests_count = Officer.pull_data_and_init(officer_id=officer_id,
+                                                                      appointments_limit=appointments_limit,
+                                                                      requests_count=requests_count)
+            if core_officer is None:
+                print('{0} officer id does not exist'.format(officer_id))
+                continue
+
+            core_officers[officer_id] = core_officer
+
+        return core_officers, requests_count
+
+    @classmethod
+    def init_companies(cls, company_numbers, requests_count):
+        companies = {}
+        for company_number in company_numbers:
+            company, requests_count = Company.pull_data_and_init(company_number, requests_count)
+
+            if company is None:
+                print("{0} company number does not exist".format(company_number))
+                continue
+            companies[company_number] = company
+        return companies, requests_count
+
+    @classmethod
+    def start(cls, officer_ids, company_numbers, requests_count, appointments_limit=100):
+        print("getting officers")
+        core_officers, requests_count = cls.init_officers(officer_ids=officer_ids, requests_count=requests_count,
+                                                          appointments_limit=appointments_limit)
+        print("{0} officers fetched".format(len(core_officers.values())))
+        print("getting companies")
+        core_companies, requests_count = cls.init_companies(company_numbers=company_numbers,
+                                                            requests_count=requests_count)
+        print("{0} companies fetched".format(len(core_companies.values())))
+        if len(core_officers.values()) == 0 and len(core_companies.values()) == 0:
+            print("Nothing to work with")
+            sys.exit()
+
+        network = cls(officers=core_officers, companies=core_companies, appointments=[])
+
+        requests_count = network.process_new_officers(requests_count)
+
+        return network, requests_count
+
+    @classmethod
+    def start_from_officers(cls, officer_ids, requests_count, appointments_limit):
+
+        core_officers = cls.init_officers(officer_ids=officer_ids, requests_count=requests_count,
+                                          appointments_limit=appointments_limit)
+
+        if len(core_officers.values()) == 0:
+            print('No officers to work with')
+            sys.exit()
+
+        network = cls(officers=core_officers, companies={}, appointments=[])
+
+        requests_count = network.process_new_officers(requests_count=requests_count)
+
+        return network, requests_count
+
+    @classmethod
+    def start_from_companies(cls, company_numbers, requests_count):
+        core_companies = cls.init_companies(company_numbers=company_numbers, requests_count=requests_count)
+
+        if len(core_companies.values()) == 0:
+            print('No companies to work with')
+            sys.exit()
+
+        return cls(companies=core_companies, officers={}, appointments=[])
+
+    @classmethod
     def start_from_officer(cls, officer_id, requests_count, appointments_limit=100):
 
         core_officer, requests_count = Officer.pull_data_and_init(officer_id=officer_id, requests_count=requests_count,
@@ -118,6 +193,20 @@ class Network:
         network.add_companies_to_network(new_companies)
 
         return network, requests_count
+
+    def process_new_officers(self, requests_count):
+        print("processing new officers")
+
+        new_companies = []
+
+        for officer in self.officers.values():
+            officer_new_companies, requests_count = self.process_officer_appointments(officer=officer,
+                                                                                      requests_count=requests_count)
+            new_companies += officer_new_companies
+
+        self.add_companies_to_network(new_companies)
+
+        return requests_count
 
     def add_companies_to_network(self, new_companies):
 
@@ -159,7 +248,7 @@ class Network:
         return requests_count
 
     def process_officer_appointments(self, officer, requests_count):
-
+        print("processing {0}'s appointments".format(officer.name))
         new_companies = []
 
         for item in officer.items:
@@ -174,37 +263,3 @@ class Network:
             self.appointments.append(appointment)
 
         return new_companies, requests_count
-
-    @classmethod
-    def start(cls, officer_ids, requests_count, appointments_limit):
-
-        core_officers = {}
-
-        for officer_id in officer_ids:
-            print(officer_id)
-            core_officer, requests_count = Officer.pull_data_and_init(officer_id=officer_id,
-                                                                      appointments_limit=appointments_limit,
-                                                                      requests_count=requests_count)
-            if core_officer is None:
-                print('{0} officer id does not exist'.format(officer_id))
-
-            core_officers[officer_id] = core_officer
-
-        if len(core_officers.values()) == 0:
-            print('No officers to work with')
-            sys.exit()
-
-        network = cls(officers=core_officers, companies={}, appointments=[])
-
-        print(len(network.officers.values()))
-
-        new_companies = []
-
-        for officer in network.officers.values():
-            officer_new_companies, requests_count = network.process_officer_appointments(officer=officer,
-                                                                                         requests_count=requests_count)
-            new_companies += officer_new_companies
-
-        network.add_companies_to_network(new_companies)
-
-        return network, requests_count

@@ -20,7 +20,7 @@ You then go to the webpage's url and copy the officer id, in this example it is
 "c9MBFivRCmMdFZqdtmTcJnBqd54".
 
 You then take the id and perform the following command:
-"chi creategraph -oid c9MBFivRCmMdFZqdtmTcJnBqd54"
+"chi createnetwork -oid c9MBFivRCmMdFZqdtmTcJnBqd54"
 
 chi will then pull all of Samuel Leeds data, the data of all the companies that he directs,
 the data of all the people that also direct those companies, and then the data of all
@@ -73,10 +73,23 @@ You will then be prompted to enter 4 things:
 | password   | --pw         | -pw   |
 
 
-> [!NOTE]
-> The following commands all have these options
+**createnetwork**
 
+| parameter             | long                 | short | default |
+|-----------------------|----------------------|-------|---------|
+| Officer ids           | --officer_ids        | -oid  | []      | 
+| Company Numbers       | --company_numbers    | -cn   | []      |
+| Network layers        | --layers             | -l    | 1       |
+| Appointments limit    | --appointments_limit | -al   | 100     |
+| Save Network to Json  | --save_json_path     | -sjp  | ""      |
+| Save Network to csvs  | --save_csvs_path     | -scp  | ""      |
+| Save Network to xlsx  | --save_xlsx_path     | -sxp  | ""      |
+| Save Network to Neo4j | --save_neo4j         | -sgdb | True    |
+
+> [!NOTE]
 - --officer_ids, can be called multiple times if you wish to start from multiple people.
+- --company_numbers can be called multiple times if you wish to start from multiple companies.
+- You can start a network from as many companies and officers as you like.
 - --layers refers to how many times you wish to expand the business networks layers. It defaults to 1, which means that
  it fetches the data of the starting officers, their companies, the other officers of those companies and all of their 
  companies. Each subsequent layer repeats this proces expanding outward, it is not recommended to set this higher than
@@ -84,40 +97,22 @@ You will then be prompted to enter 4 things:
 - --appointment_limit filters out any officer with a large number of appointments. There are some people and organisations
  that sit on the board of thousands of companies. Expanding a network from one of these officers could lead to the network 
  expanding to 10 or 100s of thousands of nodes.
+- The save_x_path arguments default to "", if not set to anything else files will not be saved.
+- --save_neo4j defaults to True
+- saving csvs writes multiple csv files, so you must provide a path to an existing directory that you wish to write to 
+ rather than a path to the .csv files that you want to create.
 
 
-**creategraph**
+- **loadjsoncreategraph**
+- **loadjsonsavecsvs**
+- **loadjsonsavexlsx**
 
-| parameter | long | short |
-|------------|------|-------|
-| Officer ids | --officer_ids | -oid | 
-| Network layers | --layers | -l |
-| Appointments limit | --appointments_limit | -al |
+if you have saved a network to json you can convert it to a Neo4j graph DB, csvs or xlsx.
 
-
-
-- **savejson**
-- **savecsvs**
-- **savexlsx**
-
-
-| parameter | long | short |
-|------------|------|-------|
-| Officer ids | --officer_ids | -oid | 
-| Network layers | --layers | -l |
-| Appointments limit | --appointments_limit | -al |
-| Save location | --path | -p |
-
-> [!NOTE]
-> savecsvs writes multiple csv files, so you must provide a path to an existing directory that you wish to write to
-> rather than a path to the .csv files that you want to create.
-
-**loadjsoncreategraph**
-if you have saved a network to json you can convert it to a Neo4j graph DB.
-
-| parameter | long   | short  |
-|-----------|--------|--------|
-| json path | --path | --path |
+| parameter | long        | short | default |
+|-----------|-------------|-------|---------|
+| load path | --save_path | -sp   | None    |
+| save path | --load_path | -lp   | None    |
 
 
 ## Issues and contact
