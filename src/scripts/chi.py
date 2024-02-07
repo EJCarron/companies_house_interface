@@ -1,7 +1,7 @@
+import sys
 from . import helpers
 from ..Objects.network import Network
 import click
-from neo4j import GraphDatabase
 from . import save_network
 
 
@@ -88,32 +88,41 @@ def createnetwork(officer_ids, company_numbers, layers, appointments_limit, save
 
 
 @chi.command()
-@click.option("--path", "-p", prompt="path to the save location.")
-def loadjsoncreategraph(path):
+@click.option("--load_path", "-lp", prompt="path to the save location.")
+def loadjsoncreategraph(load_path, overwrite_neo4j):
     config = helpers.check_and_init_config()
-    network = Network.load_json(path)
 
-    cypher = network.render_create_cypher()
+    network = helpers.load_network(load_path)
 
-    graphDB_Driver = GraphDatabase.driver(config.uri, auth=(config.username, config.pw))
-
-    with graphDB_Driver.session() as graphDB_Session:
-        graphDB_Session.run(cypher)
+    try:
+        save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j)
+    except Exception as e:
+        click.echo("Failed to save neo4j graph db")
+        click.echo(e)
 
 
 @chi.command()
 @click.option("--save_path", "-sp", prompt="path to the save location.")
 @click.option("--load_path", "-lp", prompt="path to the saved json location.")
 def loadjsonsavecsvs(load_path, save_path):
-    network = Network.load_json(load_path)
+    network = helpers.load_network(load_path)
 
-    network.save_csvs(save_path)
+    try:
+        save_network.save_csvs(network=network, path=save_path)
+    except Exception as e:
+        click.echo("failed to save csvs. REMINDER to save csvs provide path to existing directory not to a .csv "
+                   "file")
+        click.echo(e)
 
 
 @chi.command()
 @click.option("--save_path", "-sp", prompt="path to the save location.")
 @click.option("--load_path", "-lp", prompt="path to the saved json location.")
 def loadjsonsavexlsx(load_path, save_path):
-    network = Network.load_json(load_path)
+    network = helpers.load_network(load_path)
 
-    network.save_xlsx(save_path)
+    try:
+        save_network.save_xlsx(network=network, path=save_path)
+    except Exception as e:
+        click.echo("failed to save xlsx")
+        click.echo(e)

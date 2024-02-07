@@ -2,7 +2,18 @@ import json
 import sys
 from . import config
 import click
+from ..Objects.network import Network
 
+
+def load_network(load_path):
+    try:
+        network = Network.load_json(load_path)
+    except Exception as e:
+        click.echo('Failed to load network')
+        click.echo(e)
+        sys.exit()
+
+    return network
 
 def check_and_init_config():
     try:
