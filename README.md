@@ -103,6 +103,8 @@ You will then be prompted to enter 4 things:
 - saving csvs writes multiple csv files, so you must provide a path to an existing directory that you wish to write to 
  rather than a path to the .csv files that you want to create.
 
+> [!Warning]
+> The save_x_path arguments are destructive, they will overwrite any contents of files stored at save locations.
 
 - **loadjsoncreategraph**
 - **loadjsonsavecsvs**
