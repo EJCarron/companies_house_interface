@@ -106,11 +106,19 @@ You will then be prompted to enter 4 things:
 > [!Warning]
 > The save_x_path arguments are destructive, they will overwrite any contents of files stored at save locations.
 
+
+### if you have saved a network to json you can convert it to a Neo4j graph DB, csvs or xlsx.
+
 - **loadjsoncreategraph**
+
+| parameter       | long              | short | default |
+|-----------------|-------------------|-------|---------|
+| load path       | --save_path       | -sp   | None    |
+| save path       | --load_path       | -lp   | None    |
+| Overwrite Neo4j | --overwrite_neo4j | -own  | False   |
+
 - **loadjsonsavecsvs**
 - **loadjsonsavexlsx**
-
-if you have saved a network to json you can convert it to a Neo4j graph DB, csvs or xlsx.
 
 | parameter | long        | short | default |
 |-----------|-------------|-------|---------|
