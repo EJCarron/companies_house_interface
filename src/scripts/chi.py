@@ -45,8 +45,10 @@ def setconfig(normal_key, uri, username, pw):
               help="Path to the xlsx save location, will not save if left blank")
 @click.option("--save_neo4j", "-sgdb", default=True, help="Bool for for whether to save the network as a graph DB."
                                                           "Defaults to True.")
+@click.option("--overwrite_neo4j", "-own", default=False, help="Bool, set to True if you want to clear graph db "
+                                                               "contents before writing new network")
 def createnetwork(officer_ids, company_numbers, layers, appointments_limit, save_json_path, save_csvs_path,
-                  save_xlsx_path, save_neo4j):
+                  save_xlsx_path, save_neo4j, overwrite_neo4j):
     config = helpers.check_and_init_config()
     requests_counter = 0
 
@@ -79,7 +81,7 @@ def createnetwork(officer_ids, company_numbers, layers, appointments_limit, save
 
     if save_neo4j:
         try:
-            save_network.save_neo4j(network=network, config=config)
+            save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j)
         except Exception as e:
             click.echo("Failed to save neo4j graph db")
             click.echo(e)

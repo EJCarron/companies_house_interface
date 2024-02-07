@@ -11,6 +11,8 @@ import pandas as pd
 
 class Network:
 
+    clear_network_strings = ('match (a) -[r] -> () delete a, r', 'match (a) delete a',)
+
     def __init__(self, officers=None, companies=None, appointments=None, doppelgangers=None):
         self.officers = {} if officers is None else officers
         self.companies = {} if companies is None else companies

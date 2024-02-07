@@ -85,6 +85,7 @@ You will then be prompted to enter 4 things:
 | Save Network to csvs  | --save_csvs_path     | -scp  | ""      |
 | Save Network to xlsx  | --save_xlsx_path     | -sxp  | ""      |
 | Save Network to Neo4j | --save_neo4j         | -sgdb | True    |
+| Overwrite Neo4j       | --overwrite_neo4j    | -own  | False   |
 
 > [!NOTE]
 - --officer_ids, can be called multiple times if you wish to start from multiple people.
