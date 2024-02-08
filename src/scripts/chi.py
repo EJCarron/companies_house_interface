@@ -5,6 +5,17 @@ import click
 from . import save_network
 
 
+def load_network(load_path):
+    try:
+        network = Network.load_json(load_path)
+    except Exception as e:
+        click.echo('Failed to load network')
+        click.echo(e)
+        sys.exit()
+
+    return network
+
+
 @click.group()
 def chi():
     pass
@@ -92,7 +103,7 @@ def createnetwork(officer_ids, company_numbers, layers, appointments_limit, save
 def loadjsoncreategraph(load_path, overwrite_neo4j):
     config = helpers.check_and_init_config()
 
-    network = helpers.load_network(load_path)
+    network = load_network(load_path)
 
     try:
         save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j)
@@ -105,7 +116,7 @@ def loadjsoncreategraph(load_path, overwrite_neo4j):
 @click.option("--save_path", "-sp", prompt="path to the save location.")
 @click.option("--load_path", "-lp", prompt="path to the saved json location.")
 def loadjsonsavecsvs(load_path, save_path):
-    network = helpers.load_network(load_path)
+    network = load_network(load_path)
 
     try:
         save_network.save_csvs(network=network, path=save_path)
@@ -119,11 +130,10 @@ def loadjsonsavecsvs(load_path, save_path):
 @click.option("--save_path", "-sp", prompt="path to the save location.")
 @click.option("--load_path", "-lp", prompt="path to the saved json location.")
 def loadjsonsavexlsx(load_path, save_path):
-    network = helpers.load_network(load_path)
+    network = load_network(load_path)
 
     try:
         save_network.save_xlsx(network=network, path=save_path)
     except Exception as e:
         click.echo("failed to save xlsx")
         click.echo(e)
-
