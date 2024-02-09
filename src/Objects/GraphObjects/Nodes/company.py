@@ -23,3 +23,7 @@ class Company(Node):
             return cls(**result), requests_count
         else:
             return None, requests_count
+
+    @property
+    def name(self):
+        return self.company_name

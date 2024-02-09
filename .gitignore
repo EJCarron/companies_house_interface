@@ -1,4 +1,3 @@
 config.json
-data/political_influence_lists/donations.csv
-data/political_influence_lists/potential_company_connections.csv
-data/political_influence_lists/potential_officer_connections.csv
+*.csv
+*.csv#
