@@ -27,6 +27,10 @@ class Node(Graph_Object):
 
         return node_name
 
+    @property
+    def node_id(self):
+        return ''
+
     def render_unique_label(self):
         return ''
 

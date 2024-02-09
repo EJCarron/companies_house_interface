@@ -1,0 +1,38 @@
+from data.political_influence_lists.political_influence_lists_params import lists
+import pandas as pd
+from src.Objects.GraphObjects.Nodes.node_factory import node_factory
+from src.Objects.GraphObjects.Relationships.relationship_factory import relationship_factory
+
+
+def add_connections_to_network(network):
+    for influence_list in lists:
+        company_connections_df = pd.read_csv(influence_list['company_connections_path'])
+        officer_connections_df = pd.read_csv(influence_list['officer_connections_path'])
+
+        company_connections = company_connections_df.to_dict('records')
+        officer_connections = officer_connections_df.to_dict('records')
+
+        def add_to_network(connections, child_node_dict):
+            for connection in connections:
+                new_node_name = connection[influence_list['node_name_col']]
+                new_node_params = {k: connection[k] for k in influence_list['node_params_cols']}
+
+                parent_node = node_factory[influence_list['node_type']](name=new_node_name, **new_node_params)
+
+                child_node = child_node_dict.get(connection['connection_id'], None)
+
+                if child_node is None:
+                    print('Error connection Node ID not found in network')
+                    continue
+
+                new_relationship = relationship_factory[influence_list['relationship_type']] \
+                    (parent_node_name=parent_node.node_name(),
+                     child_node_name=child_node.node_name(),
+                     **connection
+                     )
+
+                network.add_node(parent_node)
+                network.add_relationship(new_relationship)
+
+        add_to_network(company_connections, network.companies)
+        add_to_network(officer_connections, network.officers)

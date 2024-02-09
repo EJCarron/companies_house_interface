@@ -5,25 +5,47 @@ from .GraphObjects.Nodes.company import Company
 from .GraphObjects.Nodes.officer import Officer
 from .GraphObjects.Relationships.appointment import Appointment
 from .GraphObjects.Relationships.doppelganger import Doppelganger
+from .GraphObjects.Relationships.relationship import Relationship
 from ..scripts import companies_house_api as cha
 import pandas as pd
+from .GraphObjects.Nodes.node import Node
 
 
 class Network:
 
     clear_network_strings = ('match (a) -[r] -> () delete a, r', 'match (a) delete a',)
 
-    def __init__(self, officers=None, companies=None, appointments=None, doppelgangers=None):
+    def __init__(self, officers=None, companies=None, appointments=None, doppelgangers=None, other_nodes=None,
+                 other_relationships=None):
         self.officers = {} if officers is None else officers
         self.companies = {} if companies is None else companies
+        self.other_nodes = {} if other_nodes is None else other_nodes
         self.appointments = [] if appointments is None else appointments
         self.doppelgangers = [] if doppelgangers is None else doppelgangers
+        self.other_relationships = [] if other_relationships is None else other_relationships
 
     def get_officer(self, officer_id):
         if officer_id in self.officers.keys():
             return self.officers[officer_id]
         else:
             return None
+
+    def add_node(self, node):
+        if isinstance(node, Node):
+            if node.node_id not in self.other_nodes.keys():
+                self.other_nodes[node.node_id] = node
+                return True
+            else:
+                return False
+        else:
+            print('Internal Error, tried to add none node to network nodes list')
+            sys.exit()
+
+    def add_relationship(self, relationship):
+        if isinstance(relationship, Relationship):
+            self.other_relationships.append(relationship)
+        else:
+            print('Internal Error, tried to add none relationship to network relationships list')
 
     def render_create_cypher(self):
 
@@ -34,6 +56,9 @@ class Network:
 
         for officer in self.officers.values():
             nodes.append(officer.render_create_clause())
+
+        for node in self.other_nodes.values():
+            nodes.append(node.render_create_clause())
 
         nodes_string = ''
 
@@ -52,6 +77,10 @@ class Network:
 
         for doppelganger in self.doppelgangers:
             cypher_string += '\n {clause}'.format(clause=doppelganger.render_create_clause())
+
+        for relationship in self.other_relationships:
+            cypher_string += '\n {clause}'.format(clause=relationship.render_create_clause())
+
         return cypher_string
 
     def to_dataframes(self):
@@ -146,53 +175,6 @@ class Network:
         network = cls(officers=core_officers, companies=core_companies, appointments=[])
 
         requests_count = network.process_new_officers(requests_count)
-
-        return network, requests_count
-
-    @classmethod
-    def start_from_officers(cls, officer_ids, requests_count, appointments_limit):
-
-        core_officers = cls.init_officers(officer_ids=officer_ids, requests_count=requests_count,
-                                          appointments_limit=appointments_limit)
-
-        if len(core_officers.values()) == 0:
-            print('No officers to work with')
-            sys.exit()
-
-        network = cls(officers=core_officers, companies={}, appointments=[])
-
-        requests_count = network.process_new_officers(requests_count=requests_count)
-
-        return network, requests_count
-
-    @classmethod
-    def start_from_companies(cls, company_numbers, requests_count):
-        core_companies = cls.init_companies(company_numbers=company_numbers, requests_count=requests_count)
-
-        if len(core_companies.values()) == 0:
-            print('No companies to work with')
-            sys.exit()
-
-        return cls(companies=core_companies, officers={}, appointments=[])
-
-    @classmethod
-    def start_from_officer(cls, officer_id, requests_count, appointments_limit=100):
-
-        core_officer, requests_count = Officer.pull_data_and_init(officer_id=officer_id, requests_count=requests_count,
-                                                                  appointments_limit=appointments_limit,
-
-                                                                  )
-
-        if core_officer is None:
-            print("Incorrect Officer ID")
-            sys.exit()
-
-        network = cls(officers={core_officer.officer_id: core_officer}, companies={}, appointments=[])
-
-        new_companies, requests_count = network.process_officer_appointments(officer=core_officer,
-                                                                             requests_count=requests_count)
-
-        network.add_companies_to_network(new_companies)
 
         return network, requests_count
 

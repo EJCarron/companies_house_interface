@@ -13,6 +13,10 @@ class Company(Node):
         unique_label = '{name}_{id}'.format(name=self.company_name.replace(' ', '_'), id=self.company_number)
         return unique_label
 
+    @property
+    def node_id(self):
+        return self.company_number
+
     @classmethod
     def pull_data_and_init(cls, company_number, requests_count):
         result, requests_count = cha.get_company(company_number, requests_count)

@@ -19,6 +19,10 @@ class Officer(Node):
         unique_label = '{name}_{id}'.format(name=self.name.replace(' ', '_'), id=self.officer_id)
         return unique_label
 
+    @property
+    def node_id(self):
+        return self.officer_id
+
     @classmethod
     def from_result(cls, result):
 
