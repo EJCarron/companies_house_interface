@@ -1,19 +1,5 @@
-import sys
-from . import helpers
-from ..Objects.network import Network
+from . import chi_functions
 import click
-from . import save_network
-
-
-def load_network(load_path):
-    try:
-        network = Network.load_json(load_path)
-    except Exception as e:
-        click.echo('Failed to load network')
-        click.echo(e)
-        sys.exit()
-
-    return network
 
 
 @click.group()
@@ -28,13 +14,7 @@ def chi():
 @click.option("--username", "-un", prompt="Your neo4j username", default='neo4j')
 @click.option("--pw", "-pw", prompt="Your neo4j db password")
 def setconfig(normal_key, uri, username, pw):
-    config_dict = {'normal_key': normal_key,
-                   'uri': uri,
-                   'username': username,
-                   'pw': pw
-                   }
-
-    helpers.set_config(config_dict)
+    chi_functions.setconfig(normal_key=normal_key, uri=uri, username=username, pw=pw)
 
 
 @chi.command()
@@ -60,80 +40,27 @@ def setconfig(normal_key, uri, username, pw):
                                                                "contents before writing new network")
 def createnetwork(officer_ids, company_numbers, layers, appointments_limit, save_json_path, save_csvs_path,
                   save_xlsx_path, save_neo4j, overwrite_neo4j):
-    config = helpers.check_and_init_config()
-    requests_counter = 0
-
-    network, requests_counter = Network.start(officer_ids=officer_ids, company_numbers=company_numbers,
-                                              appointments_limit=appointments_limit, requests_count=requests_counter)
-
-    network.expand_network(requests_count=requests_counter, layers=layers, appointments_limit=appointments_limit)
-
-    if save_json_path != "":
-        try:
-            save_network.save_json(network=network, path=save_json_path)
-        except Exception as e:
-            click.echo("failed to save json")
-            click.echo(e)
-
-    if save_csvs_path != "":
-        try:
-            save_network.save_csvs(network=network, path=save_csvs_path)
-        except Exception as e:
-            click.echo("failed to save csvs. REMINDER to save csvs provide path to existing directory not to a .csv "
-                       "file")
-            click.echo(e)
-
-    if save_xlsx_path != "":
-        try:
-            save_network.save_xlsx(network=network, path=save_xlsx_path)
-        except Exception as e:
-            click.echo("failed to save xlsx")
-            click.echo(e)
-
-    if save_neo4j:
-        try:
-            save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j)
-        except Exception as e:
-            click.echo("Failed to save neo4j graph db")
-            click.echo(e)
+    chi_functions.createnetwork(officer_ids=officer_ids, company_numbers=company_numbers, layers=layers,
+                                appointments_limit=appointments_limit, save_json_path=save_json_path,
+                                save_csvs_path=save_csvs_path, save_xlsx_path=save_xlsx_path, save_neo4j=save_neo4j,
+                                overwrite_neo4j=overwrite_neo4j)
 
 
 @chi.command()
 @click.option("--load_path", "-lp", prompt="path to the save location.")
 def loadjsoncreategraph(load_path, overwrite_neo4j):
-    config = helpers.check_and_init_config()
-
-    network = load_network(load_path)
-
-    try:
-        save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j)
-    except Exception as e:
-        click.echo("Failed to save neo4j graph db")
-        click.echo(e)
+    chi_functions.loadjsoncreategraph(load_path=load_path, overwrite_neo4j=overwrite_neo4j)
 
 
 @chi.command()
 @click.option("--save_path", "-sp", prompt="path to the save location.")
 @click.option("--load_path", "-lp", prompt="path to the saved json location.")
 def loadjsonsavecsvs(load_path, save_path):
-    network = load_network(load_path)
-
-    try:
-        save_network.save_csvs(network=network, path=save_path)
-    except Exception as e:
-        click.echo("failed to save csvs. REMINDER to save csvs provide path to existing directory not to a .csv "
-                   "file")
-        click.echo(e)
+    chi_functions.loadjsonsavecsvs(load_path=load_path, save_path=save_path)
 
 
 @chi.command()
 @click.option("--save_path", "-sp", prompt="path to the save location.")
 @click.option("--load_path", "-lp", prompt="path to the saved json location.")
 def loadjsonsavexlsx(load_path, save_path):
-    network = load_network(load_path)
-
-    try:
-        save_network.save_xlsx(network=network, path=save_path)
-    except Exception as e:
-        click.echo("failed to save xlsx")
-        click.echo(e)
+    chi_functions.loadjsonsavexlsx(load_path=load_path, save_path=save_path)
