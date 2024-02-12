@@ -23,7 +23,7 @@ class Company(Node):
         result, requests_count = cha.get_company(company_number, requests_count)
 
         if result is not None:
-            result['company_name'] = cls.clean_name(name=result['company_name'])
+            result['company_name'] = cls.clean_name(dirty_name=result['company_name'])
 
             return cls(**result), requests_count
         else:

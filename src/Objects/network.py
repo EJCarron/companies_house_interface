@@ -9,32 +9,79 @@ from .GraphObjects.Relationships.relationship import Relationship
 from ..scripts import companies_house_api as cha
 import pandas as pd
 from .GraphObjects.Nodes.node import Node
-from .GraphObjects.Nodes.node_factory import node_factory
-from .GraphObjects.Relationships.relationship_factory import relationship_factory
+from .GraphObjects.Nodes import node_factory
+from .GraphObjects.Relationships import relationship_factory
 
 
 class Network:
     clear_network_strings = ('match (a) -[r] -> () delete a, r', 'match (a) delete a',)
 
-    def __init__(self, officers=None, companies=None, appointments=None, doppelgangers=None, other_nodes=None,
-                 other_relationships=None):
-        self.officers = {} if officers is None else officers
-        self.companies = {} if companies is None else companies
-        self.other_nodes = {} if other_nodes is None else other_nodes
-        self.appointments = [] if appointments is None else appointments
-        self.doppelgangers = [] if doppelgangers is None else doppelgangers
-        self.other_relationships = [] if other_relationships is None else other_relationships
+    def __init__(self, nodes=None, relationships=None):
+        self.nodes = {} if nodes is None else nodes
+        self.relationships = [] if relationships is None else relationships
+
+    def get_nodes_of_type(self, node_type):
+
+        found_nodes = {}
+
+        for node_id, node in self.nodes.items():
+            if isinstance(node, node_type):
+                found_nodes[node_id] = node
+
+        return found_nodes
+
+    def get_relationship_of_type(self, relationship_type):
+        found_relationships = []
+
+        for relationship in self.relationships:
+            if isinstance(relationship, relationship_type):
+                found_relationships.append(relationship)
+
+        return found_relationships
+
+    @property
+    def officers(self):
+        return self.get_nodes_of_type(node_factory.officer)
+
+    @property
+    def companies(self):
+        return self.get_nodes_of_type(node_factory.company)
+
+    @property
+    def regulated_donees(self):
+        return self.get_nodes_of_type(node_factory.RegulatedDonee)
+
+    @property
+    def appointments(self):
+        return self.get_relationship_of_type(relationship_factory.appointment)
+
+    @property
+    def donations(self):
+        return self.get_relationship_of_type(relationship_factory.donation)
+
+    @property
+    def doppelgangers(self):
+        return self.get_relationship_of_type(relationship_factory.doppelganger)
 
     def get_officer(self, officer_id):
-        if officer_id in self.officers.keys():
-            return self.officers[officer_id]
-        else:
-            return None
+        self.officers.get(officer_id, None)
 
-    def add_node(self, node):
-        if isinstance(node, Node):
-            if node.node_id not in self.other_nodes.keys():
-                self.other_nodes[node.node_id] = node
+    def get_company(self, company_number):
+        self.companies.get(company_number, None)
+
+    def add_officer(self, officer):
+        self.add_node(officer, node_factory.officer)
+
+    def add_company(self, company):
+        self.add_node(company, node_factory.company)
+
+    def add_regulated_donee(self, regulated_donee):
+        self.add_node(regulated_donee, node_factory.regulated_donee)
+
+    def add_node(self, node, node_type=None):
+        if isinstance(node, Node if node_type is None else node_type):
+            if node.node_id not in self.nodes.keys():
+                self.nodes[node.node_id] = node
                 return True
             else:
                 return False
@@ -42,9 +89,18 @@ class Network:
             print('Internal Error, tried to add none node to network nodes list')
             sys.exit()
 
-    def add_relationship(self, relationship):
-        if isinstance(relationship, Relationship):
-            self.other_relationships.append(relationship)
+    def add_appointment(self, appointment):
+        self.add_relationship(appointment, relationship_factory.appointment)
+
+    def add_doppelganger(self, doppelganger):
+        self.add_relationship(doppelganger, relationship_factory.doppelganger)
+
+    def add_donation(self, donation):
+        self.add_relationship(donation, relationship_factory.donation)
+
+    def add_relationship(self, relationship, relationship_type=None):
+        if isinstance(relationship, Relationship if relationship_type is None else relationship_type):
+            self.relationships.append(relationship)
         else:
             print('Internal Error, tried to add none relationship to network relationships list')
 
@@ -52,13 +108,7 @@ class Network:
 
         nodes = []
 
-        for company in self.companies.values():
-            nodes.append(company.render_create_clause())
-
-        for officer in self.officers.values():
-            nodes.append(officer.render_create_clause())
-
-        for node in self.other_nodes.values():
+        for node in self.nodes.values():
             clause = node.render_create_clause()
             nodes.append(clause)
 
@@ -74,13 +124,7 @@ class Network:
         CREATE {nodes}
         '''.format(nodes=nodes_string)
 
-        for appointment in self.appointments:
-            cypher_string += '\n {clause}'.format(clause=appointment.render_create_clause())
-
-        for doppelganger in self.doppelgangers:
-            cypher_string += '\n {clause}'.format(clause=doppelganger.render_create_clause())
-
-        for relationship in self.other_relationships:
+        for relationship in self.relationships:
             cypher_string += '\n {clause}'.format(clause=relationship.render_create_clause())
 
         return cypher_string
@@ -124,15 +168,11 @@ class Network:
     def load_json(cls, path):
         with open(path) as f:
             data = json.load(f)
-        return cls(appointments=[Appointment(**appointment) for appointment in data.get('appointments', [])],
-                   companies={company_number: Company(**company) for company_number, company in
-                              data.get('companies', {}).items()},
-                   officers={officer_id: Officer(**officer) for officer_id, officer in data.get('officers', {}).items()},
-                   doppelgangers=[Doppelganger(**doppelganger) for doppelganger in data.get('doppelgangers', [])],
-                   other_nodes={node_id: node_factory[node['node_type']](**node) for node_id, node in
-                                data.get('other_nodes', {}).items()},
-                   other_relationships=[relationship_factory[relationship['relationship_type']](**relationship)
-                                        for relationship in data.get('other_relationships', [])]
+
+        return cls(relationships=[relationship_factory.relationship_dict[relationship['relationship_type']]
+                                  (**relationship) for relationship in data.get('relationships', [])],
+                   nodes={node_id: node_factory.node_dict[node['node_type']](**node) for node_id, node in
+                          data.get('nodes', {}).items()}
                    )
 
     @classmethod
@@ -178,7 +218,7 @@ class Network:
             print("Nothing to work with")
             sys.exit()
 
-        network = cls(officers=core_officers, companies=core_companies, appointments=[])
+        network = cls(nodes={**core_officers, **core_companies})
 
         requests_count = network.process_new_officers(requests_count)
 
@@ -201,7 +241,7 @@ class Network:
     def add_companies_to_network(self, new_companies):
 
         for company in new_companies:
-            self.companies[company.company_number] = company
+            self.add_company(company)
 
     def make_doppelganger_connection(self, parent_node_name, child_node_name):
 
@@ -228,7 +268,7 @@ class Network:
                                                                              appointments_limit=appointments_limit)
                         if len(officer.items) == 0:
                             officer.manually_add_appointment_item(company_number=company.company_number)
-                        self.officers[officer_id] = officer
+                        self.add_officer(officer)
                         officer_companies, requests_count = self.process_officer_appointments(officer, requests_count)
                         companies += officer_companies
 
@@ -250,6 +290,6 @@ class Network:
                 company = self.companies[company_number]
 
             appointment = Appointment(parent_node_name=officer.node_name(), child_node_name=company.node_name(), **item)
-            self.appointments.append(appointment)
+            self.add_appointment(appointment)
 
         return new_companies, requests_count

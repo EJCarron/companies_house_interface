@@ -1,7 +1,7 @@
 from data.political_influence_lists.political_influence_lists_params import lists
 import pandas as pd
-from src.Objects.GraphObjects.Nodes.node_factory import node_factory
-from src.Objects.GraphObjects.Relationships.relationship_factory import relationship_factory
+from src.Objects.GraphObjects.Nodes import node_factory
+from src.Objects.GraphObjects.Relationships import relationship_factory
 
 
 def add_connections_to_network(network):
@@ -17,7 +17,7 @@ def add_connections_to_network(network):
                 new_node_name = connection[influence_list['node_name_col']]
                 new_node_params = {k: connection[k] for k in influence_list['node_params_cols']}
 
-                child_node = node_factory[influence_list['node_type']](name=new_node_name, **new_node_params)
+                child_node = node_factory.node_dict[influence_list['node_type']](name=new_node_name, **new_node_params)
 
                 parent_node = child_node_dict.get(connection['connection_id'], None)
 
@@ -25,7 +25,7 @@ def add_connections_to_network(network):
                     print('Error connection Node ID not found in network')
                     continue
 
-                new_relationship = relationship_factory[influence_list['relationship_type']] \
+                new_relationship = relationship_factory.relationship_dict[influence_list['relationship_type']] \
                     (parent_node_name=parent_node.node_name(),
                      child_node_name=child_node.node_name(),
                      **connection

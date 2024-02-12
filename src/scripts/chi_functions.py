@@ -28,8 +28,13 @@ def setconfig(normal_key, uri, username, pw):
     helpers.set_config(config_dict)
 
 
-def createnetwork(officer_ids, company_numbers, layers, appointments_limit, save_json_path, save_csvs_path,
-                  save_xlsx_path, save_neo4j, overwrite_neo4j):
+def createnetwork(officer_ids=None, company_numbers=None, layers=1, appointments_limit=100, save_json_path='',
+                  save_csvs_path='',
+                  save_xlsx_path='', save_neo4j='', overwrite_neo4j=False):
+
+    officer_ids = [] if officer_ids is None else officer_ids
+    company_numbers = [] if company_numbers is None else company_numbers
+
     config = helpers.check_and_init_config()
     requests_counter = 0
 

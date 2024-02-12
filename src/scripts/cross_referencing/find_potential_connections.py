@@ -12,10 +12,14 @@ def find_potential_connections(network, fuzz_threshold=80):
             dirty_str = dirty_str.lower().replace(stripper, '')
         return dirty_str
 
-    clean_officers = {officer_id: clean_str_for_fuzz(network.officers[officer_id].name) for officer_id in
-                      network.officers.keys()}
-    clean_companies = {company_number: clean_str_for_fuzz(network.companies[company_number].company_name) for
-                       company_number in network.companies.keys()}
+    def make_dict_of_fuzz_clean_nodes(nodes):
+        cleaned = {}
+        for node in nodes:
+            cleaned[node.node_id] = clean_str_for_fuzz(node.name)
+        return cleaned
+
+    clean_officers = make_dict_of_fuzz_clean_nodes(network.officers.values())
+    clean_companies = make_dict_of_fuzz_clean_nodes(network.companies.values())
 
     for influence_list in lists:
         def determine_fuzz(str1, str2):

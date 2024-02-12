@@ -41,7 +41,7 @@ class Officer(Node):
 
         if result is not None:
             if result is not None:
-                result['name'] = cls.clean_name(name=result['name'])
+                result['name'] = cls.clean_name(dirty_name=result['name'])
 
             return cls.from_result(result), requests_count
         else:
