@@ -66,5 +66,8 @@ def find_potential_connections(network, fuzz_threshold=80):
         company_df = make_potential_connections_df(df, find_companies=True)
         officer_df = make_potential_connections_df(df, find_officers=True)
 
+        print('Saving potential connections at')
+        print(influence_list['potential_officer_path'])
+        print(influence_list['potential_company_path'])
         officer_df.to_csv(influence_list['potential_officer_path'], index=False)
         company_df.to_csv(influence_list['potential_company_path'], index=False)

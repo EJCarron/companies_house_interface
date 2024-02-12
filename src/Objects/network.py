@@ -9,10 +9,11 @@ from .GraphObjects.Relationships.relationship import Relationship
 from ..scripts import companies_house_api as cha
 import pandas as pd
 from .GraphObjects.Nodes.node import Node
+from .GraphObjects.Nodes.node_factory import node_factory
+from .GraphObjects.Relationships.relationship_factory import relationship_factory
 
 
 class Network:
-
     clear_network_strings = ('match (a) -[r] -> () delete a, r', 'match (a) delete a',)
 
     def __init__(self, officers=None, companies=None, appointments=None, doppelgangers=None, other_nodes=None,
@@ -58,7 +59,8 @@ class Network:
             nodes.append(officer.render_create_clause())
 
         for node in self.other_nodes.values():
-            nodes.append(node.render_create_clause())
+            clause = node.render_create_clause()
+            nodes.append(clause)
 
         nodes_string = ''
 
@@ -122,11 +124,15 @@ class Network:
     def load_json(cls, path):
         with open(path) as f:
             data = json.load(f)
-        return cls(appointments=[Appointment(**appointment) for appointment in data['appointments']],
+        return cls(appointments=[Appointment(**appointment) for appointment in data.get('appointments', [])],
                    companies={company_number: Company(**company) for company_number, company in
-                              data['companies'].items()},
-                   officers={officer_id: Officer(**officer) for officer_id, officer in data['officers'].items()},
-                   doppelgangers=[Doppelganger(**doppelganger) for doppelganger in data['doppelgangers']]
+                              data.get('companies', {}).items()},
+                   officers={officer_id: Officer(**officer) for officer_id, officer in data.get('officers', {}).items()},
+                   doppelgangers=[Doppelganger(**doppelganger) for doppelganger in data.get('doppelgangers', [])],
+                   other_nodes={node_id: node_factory[node['node_type']](**node) for node_id, node in
+                                data.get('other_nodes', {}).items()},
+                   other_relationships=[relationship_factory[relationship['relationship_type']](**relationship)
+                                        for relationship in data.get('other_relationships', [])]
                    )
 
     @classmethod

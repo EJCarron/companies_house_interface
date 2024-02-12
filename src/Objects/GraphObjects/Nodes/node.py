@@ -3,7 +3,9 @@ from src.Objects.GraphObjects.graph_object import Graph_Object
 
 
 class Node(Graph_Object):
-    bad_name_chars = ['-', '(', ')', '.', '@', '&', '\'', '’', '/', ',']
+
+    def __init__(self):
+        self.node_type = type(self).__name__
 
     def to_json(self):
         return json.dumps(self, default=lambda o: o.__dict__,
@@ -15,7 +17,7 @@ class Node(Graph_Object):
 
         clause_string = '''
         ({name}:{label} {{{parameters}}})
-        '''.format(name=self.node_name(), label=type(self).__name__, parameters=parameters_string)
+        '''.format(name=self.node_name(), label=self.node_type, parameters=parameters_string)
 
         return clause_string
 
@@ -33,13 +35,3 @@ class Node(Graph_Object):
 
     def render_unique_label(self):
         return ''
-
-    @classmethod
-    def clean_name(cls, name):
-        for bad in cls.bad_name_chars:
-            name = name.replace(bad, '')
-
-        if name[0].isnumeric():
-            name = '_' + name
-
-        return name

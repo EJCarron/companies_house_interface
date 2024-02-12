@@ -1,13 +1,12 @@
-from src.Objects.network import Network
-from src.scripts.cross_referencing.find_potential_connections import find_potential_connections
-from src.scripts.cross_referencing.add_connections_to_network import add_connections_to_network
+
+import src.scripts.chi_functions as chi_functions
 
 save_directory = '/Users/edwardcarron/Desktop/chi_test'
 save_json = save_directory + '/test.json'
 save_xlsx = save_directory + '/test.xlsx'
+influence_network_path_json_path = save_directory + '/influence_test.json'
 
-network = Network.load_json(save_json)
 
-# find_potential_connections(network)
-add_connections_to_network(network)
-network
+
+chi_functions.add_political_influence_connections_to_network(save_json, influence_network_path_json_path)
+chi_functions.loadjsoncreategraph(influence_network_path_json_path, overwrite_neo4j=True)

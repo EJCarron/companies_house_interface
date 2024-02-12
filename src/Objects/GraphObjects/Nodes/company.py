@@ -5,6 +5,7 @@ from src.scripts import companies_house_api as cha
 class Company(Node):
 
     def __init__(self, **kwargs):
+        super(Company, self).__init__()
         self.company_number = None
         self.company_name = None
         self.__dict__.update(kwargs)

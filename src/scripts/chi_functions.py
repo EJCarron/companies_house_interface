@@ -3,6 +3,8 @@ from . import helpers
 from ..Objects.network import Network
 import click
 from . import save_network
+from ..scripts.cross_referencing.find_potential_connections import find_potential_connections
+from ..scripts.cross_referencing.add_connections_to_network import add_connections_to_network
 
 
 def load_network(load_path):
@@ -14,6 +16,7 @@ def load_network(load_path):
         sys.exit()
 
     return network
+
 
 def setconfig(normal_key, uri, username, pw):
     config_dict = {'normal_key': normal_key,
@@ -96,3 +99,17 @@ def loadjsonsavexlsx(load_path, save_path):
     except Exception as e:
         click.echo("failed to save xlsx")
         click.echo(e)
+
+
+def find_potential_political_influence_connections(load_path):
+    network = Network.load_json(load_path)
+    find_potential_connections(network)
+    print('check potential connections, keep ones that you think match, and save file in same directory but remove'
+          ' \'potential\' from file name')
+
+
+def add_political_influence_connections_to_network(load_path, updated_network_save_path):
+    network = Network.load_json(load_path)
+    add_connections_to_network(network)
+    print('Saving updated network to ' + updated_network_save_path)
+    network.save_json(updated_network_save_path)

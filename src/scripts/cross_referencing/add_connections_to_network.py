@@ -17,9 +17,9 @@ def add_connections_to_network(network):
                 new_node_name = connection[influence_list['node_name_col']]
                 new_node_params = {k: connection[k] for k in influence_list['node_params_cols']}
 
-                parent_node = node_factory[influence_list['node_type']](name=new_node_name, **new_node_params)
+                child_node = node_factory[influence_list['node_type']](name=new_node_name, **new_node_params)
 
-                child_node = child_node_dict.get(connection['connection_id'], None)
+                parent_node = child_node_dict.get(connection['connection_id'], None)
 
                 if child_node is None:
                     print('Error connection Node ID not found in network')
@@ -31,7 +31,7 @@ def add_connections_to_network(network):
                      **connection
                      )
 
-                network.add_node(parent_node)
+                network.add_node(child_node)
                 network.add_relationship(new_relationship)
 
         add_to_network(company_connections, network.companies)

@@ -2,6 +2,18 @@ from collections.abc import MutableMapping
 
 
 class Graph_Object:
+    bad_name_chars = ['-', '(', ')', '.', '@', '&', '\'', '’', '/', ',', ' ']
+
+    @classmethod
+    def clean_name(cls, dirty_name):
+
+        for bad in cls.bad_name_chars:
+            dirty_name = dirty_name.replace(bad, '')
+
+        if dirty_name[0].isnumeric():
+            dirty_name = '_' + dirty_name
+
+        return dirty_name
 
     def render_parameters_string(self):
 
@@ -25,23 +37,25 @@ class Graph_Object:
     def handle_param(self, attr, value):
         value_type = type(value)
 
+        clean_attr = self.clean_name(attr)
+
         if value_type == str:
             if self.is_date_time(value):
-                return '{attr}: date(\'{date}\')'.format(attr=attr, date=value)
+                return '{attr}: date(\'{date}\')'.format(attr=clean_attr, date=value)
             else:
                 value = value.replace('\'', '')
-                return '{attr}: \'{value}\''.format(attr=attr, value=value)
+                return '{attr}: \'{value}\''.format(attr=clean_attr, value=value)
         elif value_type == bool:
             if value:
-                return '{attr}: true'.format(attr=attr, value=value)
+                return '{attr}: true'.format(attr=clean_attr, value=value)
             else:
-                return '{attr}: false'.format(attr=attr, value=value)
+                return '{attr}: false'.format(attr=clean_attr, value=value)
         elif value_type == int:
-            return '{attr}: {value}'.format(attr=attr, value=value)
+            return '{attr}: {value}'.format(attr=clean_attr, value=value)
         elif value_type == dict:
             print('bad dict somehow')
         else:
-            return '{attr}: null'.format(attr=attr, value=value)
+            return '{attr}: null'.format(attr=clean_attr, value=value)
 
     def is_date_time(self, param):
 

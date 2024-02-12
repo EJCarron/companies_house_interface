@@ -4,6 +4,7 @@ from ....scripts import companies_house_api as cha
 
 class Officer(Node):
     def __init__(self, **kwargs):
+        super(Officer, self).__init__()
         self.name = None
         self.officer_id = None
         self.items = None

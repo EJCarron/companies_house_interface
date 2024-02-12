@@ -64,3 +64,14 @@ def loadjsonsavecsvs(load_path, save_path):
 @click.option("--load_path", "-lp", prompt="path to the saved json location.")
 def loadjsonsavexlsx(load_path, save_path):
     chi_functions.loadjsonsavexlsx(load_path=load_path, save_path=save_path)
+
+
+@chi.command()
+@click.option("--load_path", "-lp", prompt="path to the saved json location.")
+def fppic(load_path):
+    chi_functions.find_potential_political_influence_connections(load_path=load_path)
+
+
+def apictn(load_path, updated_network_save_path):
+    chi_functions.add_political_influence_connections_to_network(load_path=load_path,
+                                                                 updated_network_save_path=updated_network_save_path, )
