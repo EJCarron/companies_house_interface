@@ -9,7 +9,7 @@ and then saving the data in various formats:
 - csv
 - xlsx spreadsheets.
 
-### Here is an example work flow:
+### Here is an example basic work flow:
 
 Let's pick someone who directs multiple UK companies that we would like to look into.
 For example the social media landlord Samuel Leeds:
@@ -29,6 +29,33 @@ visualising the business network.
 
 ![A screenshot of a Neo4j GraphDB visualising Samuel Leeds' business network](/imgs/graph_example.png)
 
+### Finding political connections work flow:
+
+Once you have created a network pulled from Companies House data you can then extend it to find connections in various
+political data sets, although currently the only one that has been implemented is the UK Electoral Commission's register
+of interests.
+
+>[!NOTE]
+> This is more involved than the most basic example, it is a multistep process that requires your own input
+> and judgement.
+
+This time lets use a more political entwined example: The Global Warming Policy Foundation.
+
+![A screenshot of The Global Warming Policy Foundation's Companies House profile](/imgs/GWPF_CH_profile.png)
+
+In the same way that you extracted the officer id in the last example this time you go to the url and find the company 
+number. For the GWPF it is "06962749".
+
+You then create the basic network with the createnetwork command
+
+chi createnetwork -cn 06962749 --save_neo4j False --save_json_path "~/example_user/data/gwpf_network.json" 
+
+let's just walk through all the parameters here
+- '-cn 06962749' This time we are starting the network from a company rather than an officer, so we are using the --company_number parameter rather than --officer_id like before.  
+- '--save_neo4j False' The default behaviour is to save the network to a neo4j db so that you can view a graph of the network to gain insights. However, in this instance the network that we are creating is going to be used as an intermediary in the creation of a more complex network, so we won't need to look at it at this stage. You could still create the graph it if you desire, but it isn't required.   
+- '--save_json_path ...' To move onto the next step in this workflow we do require the network to be saved to json, if this parameter is not used then this will not happen. So, we need to give it a path to the save location of our new network. Be advised that this function will overwrite anything currently saved at the given location.
+
+Once our basic network has been created from Companies House data and saved to json we can call the next command
 
 ## Setup and Requirements
 

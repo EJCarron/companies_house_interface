@@ -4,10 +4,10 @@ from src.Objects.GraphObjects.Nodes import node_factory
 from src.Objects.GraphObjects.Relationships import relationship_factory
 
 
-def add_connections_to_network(network):
+def add_connections_to_network(network, connections_directory):
     for influence_list in lists:
-        company_connections_df = pd.read_csv(influence_list['company_connections_path'])
-        officer_connections_df = pd.read_csv(influence_list['officer_connections_path'])
+        company_connections_df = pd.read_csv(connections_directory + influence_list['company_connections_path'])
+        officer_connections_df = pd.read_csv(connections_directory + influence_list['officer_connections_path'])
 
         company_connections = company_connections_df.to_dict('records')
         officer_connections = officer_connections_df.to_dict('records')

@@ -8,5 +8,5 @@ influence_network_path_json_path = save_directory + '/influence_test.json'
 # chi_functions.createnetwork(company_numbers=['06962749'], overwrite_neo4j=True, save_json_path=save_json)
 # chi_functions.find_potential_political_influence_connections(load_path=save_json)
 
-chi_functions.add_political_influence_connections_to_network(save_json, influence_network_path_json_path)
+# chi_functions.add_political_influence_connections_to_network(save_json, influence_network_path_json_path)
 chi_functions.loadjsoncreategraph(influence_network_path_json_path, overwrite_neo4j=True)

@@ -106,15 +106,15 @@ def loadjsonsavexlsx(load_path, save_path):
         click.echo(e)
 
 
-def find_potential_political_influence_connections(load_path):
+def find_potential_political_influence_connections(load_path, connections_directory):
     network = Network.load_json(load_path)
-    find_potential_connections(network)
+    find_potential_connections(network, connections_directory)
     print('check potential connections, keep ones that you think match, and save file in same directory but remove'
           ' \'potential\' from file name')
 
 
-def add_political_influence_connections_to_network(load_path, updated_network_save_path):
+def add_political_influence_connections_to_network(load_path, updated_network_save_path, connections_directory):
     network = Network.load_json(load_path)
-    add_connections_to_network(network)
+    add_connections_to_network(network, connections_directory)
     print('Saving updated network to ' + updated_network_save_path)
     network.save_json(updated_network_save_path)

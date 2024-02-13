@@ -68,10 +68,18 @@ def loadjsonsavexlsx(load_path, save_path):
 
 @chi.command()
 @click.option("--load_path", "-lp", prompt="path to the saved json location.")
-def fppic(load_path):
-    chi_functions.find_potential_political_influence_connections(load_path=load_path)
+@click.option("--connections_directory_path", "-cdp", prompt='path to directory where connections data will be stored')
+def fppc(load_path, connections_directory):
+    chi_functions.find_potential_political_influence_connections(load_path=load_path,
+                                                                 connections_directory=connections_directory)
 
 
-def apictn(load_path, updated_network_save_path):
+@chi.command()
+@click.option("--load_path", "-lp", prompt="path to the saved json location.")
+@click.option("--updated_network_save_path", "-unsp", prompt='save path to the json file of your new network with '
+                                                             'political connections added.')
+@click.option("--connections_directory_path", "-cdp", prompt='path to directory where connections data will be stored')
+def apctn(load_path, updated_network_save_path, connections_directory):
     chi_functions.add_political_influence_connections_to_network(load_path=load_path,
-                                                                 updated_network_save_path=updated_network_save_path, )
+                                                                 updated_network_save_path=updated_network_save_path,
+                                                                 connections_directory=connections_directory)

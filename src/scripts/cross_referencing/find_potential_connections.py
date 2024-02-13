@@ -6,7 +6,7 @@ import sys
 strip_strings = ['plc', 'ltd', 'limited', 'llp']
 
 
-def find_potential_connections(network, fuzz_threshold=80):
+def find_potential_connections(network, connections_directory, fuzz_threshold=80):
     def clean_str_for_fuzz(dirty_str):
         for stripper in strip_strings:
             dirty_str = dirty_str.lower().replace(stripper, '')
@@ -70,8 +70,11 @@ def find_potential_connections(network, fuzz_threshold=80):
         company_df = make_potential_connections_df(df, find_companies=True)
         officer_df = make_potential_connections_df(df, find_officers=True)
 
+        potential_officer_path = connections_directory + influence_list['potential_officer_path']
+        potential_company_path = connections_directory + influence_list['potential_company_path']
+
         print('Saving potential connections at')
-        print(influence_list['potential_officer_path'])
-        print(influence_list['potential_company_path'])
-        officer_df.to_csv(influence_list['potential_officer_path'], index=False)
-        company_df.to_csv(influence_list['potential_company_path'], index=False)
+        print(potential_officer_path)
+        print(potential_company_path)
+        officer_df.to_csv(potential_officer_path, index=False)
+        company_df.to_csv(potential_company_path, index=False)
