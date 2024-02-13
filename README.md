@@ -67,7 +67,6 @@ Just two parameters this time:
 >[!NOTE]
 > The program requires the files stored in the connections directory to adhere to exact naming conventions, only change
 > names when instructed and in the exact ways prescribed.
-
 Running this command may take a few minutes, even longer if you have a large starting network, so you may want to go 
 and make a cup of tea.
 
@@ -111,6 +110,9 @@ Once this has run successfully you can then call
 **chi loadjsoncreategraph --load_path "~/example_user/data/gwpf_expanded_network.json"**
 
 To save your new expanded network to neo4j so that you can view it as a graph!
+
+![A graph showing the GWPF political connections network](imgs/gwpf_network.png)
+
 
 
 ## Setup and Requirements
