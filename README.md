@@ -32,14 +32,14 @@ visualising the business network.
 ### Finding political connections work flow:
 
 Once you have created a network pulled from Companies House data you can then extend it to find connections in various
-political data sets, although currently the only one that has been implemented is the UK Electoral Commission's register
-of interests.
+political data sets. (Although currently the only one that has been implemented is the UK Electoral Commission's register
+of interests.)
 
 >[!NOTE]
 > This is more involved than the most basic example, it is a multistep process that requires your own input
 > and judgement.
 
-This time lets use a more political entwined example: The Global Warming Policy Foundation.
+This time let's use a more politically entwined example: The Global Warming Policy Foundation.
 
 ![A screenshot of The Global Warming Policy Foundation's Companies House profile](/imgs/GWPF_CH_profile.png)
 
@@ -52,28 +52,30 @@ You then create the basic network with the createnetwork command
 
 Let's just walk through all the parameters here:
 - '-cn 06962749' This time we are starting the network from a company rather than an officer, so we are using the --company_number parameter rather than --officer_id like before.  
-- '--save_neo4j False' The default behaviour is to save the network to a neo4j db so that you can view a graph of the network to gain insights. However, in this instance the network that we are creating is going to be used as an intermediary in the creation of a more complex network, so we won't need to look at it at this stage. You could still create the graph it if you desire, but it isn't required.   
+- '--save_neo4j False' The default behaviour is to save the network to a neo4j db so that you can view a graph of the network to gain insights. However, in this instance the network that we are creating is going to be used as an intermediary in the creation of a more complex network, so we won't need to look at it at this stage. You could still create the graph if you desire, but it isn't required.   
 - '--save_json_path ...' To move onto the next step in this workflow we do require the network to be saved to json, if this parameter is not used then this will not happen. So, we need to give it a path to the save location of our new network. Be advised that this function will overwrite anything currently saved at the given location.
 
 Once our basic network has been created from Companies House data and saved to json we can call the next command, fppc
 (find_potential_political_conections)
 
-**chi fppc --load_path "~/example_user/data/gwpf_network.json" --connections_directory "~/example_user/data/gwpf_connections"**
+**chi fppc --load_path "/example_user/data/gwpf_network.json" --connections_directory "/example_user/data/gwpf_connections"**
 
 Just two parameters this time:
-- '--load_path ...' The path to the json file storing out basic network.
+- '--load_path ...' The path to the json file storing our basic network.
 - '--connections_directory' This is the directory where all the connections data will be stored.
 
 >[!NOTE]
 > The program requires the files stored in the connections directory to adhere to exact naming conventions, only change
 > names when instructed and in the exact ways prescribed.
-Running this command may take a few minutes, even longer if you have a large starting network, so you may want to go 
-and make a cup of tea.
+ 
+>[!WARNING]
+>Running this command may take a few minutes, even longer if you have a large starting network, so you may want to go 
+>and make a cup of tea.
 
-If all has worked, in the connections directory the program will have created two new files for each political list that it has cross-referenced,
-currently only the register of interests (donations) has been implemented so there will be just two files:
-*donations_potential_company_connections.csv*
-*donations_potential_officer_connections.csv*
+If all has worked, in the connections directory the program will have created two new files for each political list that it has cross-referenced.
+Currently, only the register of interests (donations) has been implemented so there will be just two files:
+- *donations_potential_company_connections.csv*
+- *donations_potential_officer_connections.csv*
 
 This is the part that requires your input and judgement (fun!). The program uses a fuzzy matching algorythm to find
 potential matches between the nodes in your network and entities in the lists. However, this is not perfect and requires
@@ -91,7 +93,7 @@ between the name and potential name, work down the list deleting rows where the 
 you reach a point in the list where there clearly aren't any more hits and delete all rows below.
 
 >[!WARNING]
-> When opening a csv into a spreadsheet unwanted formatted can be carried out, specifically stripping leading 0s from the 
+> When opening a csv into a spreadsheet unwanted formatting can be applied, specifically stripping leading 0s from the 
 > company_number. To stop this from happening when using the import wizard make sure you set the data type for connection_id to 'Text'. 
 
 ![A screenshot of the libre office csv import wizard](imgs/import_warning.png)
@@ -99,15 +101,15 @@ you reach a point in the list where there clearly aren't any more hits and delet
 Once you have saved your two confirmed connections csvs you can add them to your network by calling the apctn 
 (add_political_connections_to_network) command:
 
-**chi apctn --load_path "~/example_user/data/gwpf_network.json" --connections_directory "~/example_user/data/gwpf_connections" --updated_network_save_path "~/example_user/data/gwpf_expanded_network.json"**
+**chi apctn --load_path "/example_user/data/gwpf_network.json" --connections_directory "/example_user/data/gwpf_connections" --updated_network_save_path "/example_user/data/gwpf_expanded_network.json"**
 
 - '--load_path' Is, again, the location of your basic network.
 - '--connections_directory' The same connections directory that you used before.
-- '--updated_network_save_path' The location to save your new expanded network.
+- '--updated_network_save_path' The json file location to save your new expanded network.
 
 Once this has run successfully you can then call 
 
-**chi loadjsoncreategraph --load_path "~/example_user/data/gwpf_expanded_network.json"**
+**chi loadjsoncreategraph --load_path "/example_user/data/gwpf_expanded_network.json"**
 
 To save your new expanded network to neo4j so that you can view it as a graph!
 
