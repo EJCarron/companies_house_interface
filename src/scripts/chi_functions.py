@@ -28,7 +28,7 @@ def setconfig(normal_key, uri, username, pw):
     helpers.set_config(config_dict)
 
 
-def createnetwork(officer_ids=None, company_numbers=None, layers=1, appointments_limit=100, save_json_path='',
+def createnetwork(officer_ids=None, company_numbers=None, layers=0, appointments_limit=100, save_json_path='',
                   save_csvs_path='',
                   save_xlsx_path='', save_neo4j='', overwrite_neo4j=False):
 
@@ -41,7 +41,8 @@ def createnetwork(officer_ids=None, company_numbers=None, layers=1, appointments
     network, requests_counter = Network.start(officer_ids=officer_ids, company_numbers=company_numbers,
                                               appointments_limit=appointments_limit, requests_count=requests_counter)
 
-    network.expand_network(requests_count=requests_counter, layers=layers, appointments_limit=appointments_limit)
+    if layers > 0:
+        network.expand_network(requests_count=requests_counter, layers=layers, appointments_limit=appointments_limit)
 
     if save_json_path != "":
         try:

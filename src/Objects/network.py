@@ -218,9 +218,14 @@ class Network:
             print("Nothing to work with")
             sys.exit()
 
-        network = cls(nodes={**core_officers, **core_companies})
+        network = cls(nodes=core_companies)
+
+        requests_count = network.expand_network(appointments_limit=appointments_limit, requests_count=requests_count)
+
+        network.add_officers(core_officers.values())
 
         requests_count = network.process_new_officers(requests_count)
+
 
         return network, requests_count
 
@@ -293,3 +298,8 @@ class Network:
             self.add_appointment(appointment)
 
         return new_companies, requests_count
+
+    def add_officers(self, officers):
+        for officer in officers:
+            self.add_officer(officer)
+
