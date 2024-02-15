@@ -1,4 +1,4 @@
-from data.political_influence_lists.political_influence_lists_params import lists
+from src.data.political_influence_lists.political_influence_lists_params import lists
 import pandas as pd
 from thefuzz import fuzz
 import sys

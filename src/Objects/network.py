@@ -206,7 +206,7 @@ class Network:
 
     @classmethod
     def start(cls, officer_ids, company_numbers, requests_count, appointments_limit=100):
-        print("getting officers")
+        print("getting  core officers")
         core_officers, requests_count = cls.init_officers(officer_ids=officer_ids, requests_count=requests_count,
                                                           appointments_limit=appointments_limit)
         print("{0} officers fetched".format(len(core_officers.values())))

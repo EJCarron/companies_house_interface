@@ -8,7 +8,6 @@ base_url = 'https://api.company-information.service.gov.uk/'
 
 
 def get_officer(officer_id, appointments_limit, requests_count):
-
     url = 'https://api.company-information.service.gov.uk/officers/{officer_id}/appointments'.format(
         officer_id=officer_id)
 
@@ -54,6 +53,7 @@ def countdown(h, m, s):
 def get_company_officer_ids(company_number, appointments_limit, requests_count):
     url = base_url + '/company/{company_number}/officers'.format(
         company_number=company_number)
+    print(url)
     result, requests_count = get_with_paging(url=url, requests_count=requests_count,
                                              appointments_limit=appointments_limit)
     if result is None:
@@ -114,8 +114,13 @@ def get_with_paging(url, appointments_limit, requests_count):
         result = json.loads(response.text)
 
         if appointments_limit != -1 and result['total_results'] >= appointments_limit:
-            print("APPOINTMENT LIMIT BREACHED officer {officer} has {num} appointments"
-                  .format(officer=result['name'], num=result['total_results']))
+
+            if result['kind'] == 'officer-list':
+                print('LIMIT BREACHED company {cn} has {num} officers'.format(cn=result['links']['self'].split('/')[1],
+                                                                              num=result['total_results']))
+            else:
+                print("APPOINTMENT LIMIT BREACHED officer {officer} has {num} appointments"
+                      .format(officer=result['name'], num=result['total_results']))
             final_result = result
             final_result['items'] = items
             break
