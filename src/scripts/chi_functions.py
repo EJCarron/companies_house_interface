@@ -74,16 +74,21 @@ def createnetwork(officer_ids=None, company_numbers=None, layers=0, appointments
             click.echo(e)
 
 
-def loadjsoncreategraph(load_path, overwrite_neo4j):
+def loadjsoncreategraph(load_path, overwrite_neo4j, group_officers=True):
     config = helpers.check_and_init_config()
 
     network = load_network(load_path)
 
-    try:
-        save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j)
-    except Exception as e:
-        click.echo("Failed to save neo4j graph db")
-        click.echo(e)
+    save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j,
+                            group_officers=group_officers)
+
+
+    # try:
+    #     save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j,
+    #                             group_officers=group_officers)
+    # except Exception as e:
+    #     click.echo("Failed to save neo4j graph db")
+    #     click.echo(e)
 
 
 def loadjsonsavecsvs(load_path, save_path):
@@ -119,3 +124,16 @@ def add_political_influence_connections_to_network(load_path, updated_network_sa
     add_connections_to_network(network, connections_directory)
     print('Saving updated network to ' + updated_network_save_path)
     network.save_json(updated_network_save_path)
+
+
+def create_officer_group(load_path, officer_ids, group_name, save_path=''):
+    print('Grouping nodes for ' + group_name)
+
+    network = Network.load_json(load_path)
+
+    network.group_officers(officer_ids, group_name=group_name)
+
+    if save_path == '':
+        network.save_json(load_path)
+    else:
+        network.save_json(save_path)

@@ -31,7 +31,7 @@ class Node(Graph_Object):
 
     @property
     def node_id(self):
-        return ''
+        return 'need to implement node_id property'
 
     def render_unique_label(self):
-        return ''
+        return 'need to implement render unique label'

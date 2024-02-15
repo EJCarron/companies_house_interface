@@ -3,10 +3,12 @@ from src.Objects.GraphObjects.graph_object import Graph_Object
 
 class Relationship(Graph_Object):
 
-    def __init__(self, parent_node_name, child_node_name, **params):
+    def __init__(self, parent_node_name, child_node_name, parent_id, child_id, **params):
         self.relationship_type = type(self).__name__
         self.parent_node_name = parent_node_name
         self.child_node_name = child_node_name
+        self.parent_id = parent_id
+        self.child_id = child_id
         self.__dict__.update(params)
 
     def render_create_clause(self):

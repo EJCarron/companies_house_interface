@@ -3,8 +3,8 @@ import sys
 
 from .GraphObjects.Nodes.company import Company
 from .GraphObjects.Nodes.officer import Officer
+from .GraphObjects.Nodes.officer_group import OfficerGroup
 from .GraphObjects.Relationships.appointment import Appointment
-from .GraphObjects.Relationships.doppelganger import Doppelganger
 from .GraphObjects.Relationships.relationship import Relationship
 from ..scripts import companies_house_api as cha
 import pandas as pd
@@ -52,16 +52,16 @@ class Network:
         return self.get_nodes_of_type(node_factory.RegulatedDonee)
 
     @property
+    def officer_groups(self):
+        return self.get_nodes_of_type(node_factory.officer_group)
+
+    @property
     def appointments(self):
         return self.get_relationship_of_type(relationship_factory.appointment)
 
     @property
     def donations(self):
         return self.get_relationship_of_type(relationship_factory.donation)
-
-    @property
-    def doppelgangers(self):
-        return self.get_relationship_of_type(relationship_factory.doppelganger)
 
     def get_officer(self, officer_id):
         self.officers.get(officer_id, None)
@@ -71,6 +71,23 @@ class Network:
 
     def add_officer(self, officer):
         self.add_node(officer, node_factory.officer)
+
+    # Officers can only appear in one group at a time so when new groups are added its oids need to be cross-referenced
+    # against exists groups
+    def add_officer_group(self, officer_group):
+
+        if not isinstance(officer_group, node_factory.officer_group):
+            print('tried to add not officer group to officer groups')
+            sys.exit()
+
+        for oid in officer_group.officer_ids:
+            for current_officer_group in self.officer_groups:
+                for coid in current_officer_group.officer_ids:
+                    if oid == coid:
+                        print(oid + ' already exists in a current officer group, no overlaps allowed')
+                        sys.exit()
+
+        self.officer_groups[officer_group.node_id] = officer_group
 
     def add_company(self, company):
         self.add_node(company, node_factory.company)
@@ -104,37 +121,101 @@ class Network:
         else:
             print('Internal Error, tried to add none relationship to network relationships list')
 
-    def render_create_cypher(self):
-
+    def standard_node_cyphers(self):
         nodes = []
 
         for node in self.nodes.values():
-            clause = node.render_create_clause()
-            nodes.append(clause)
+            if not isinstance(node, node_factory.officer_group):
+                clause = node.render_create_clause()
+                nodes.append(clause)
+        return nodes
+
+    def standard_relationship_cyphers(self):
+        cypher = ''
+        for relationship in self.relationships:
+            cypher += '\n {clause}'.format(clause=relationship.render_create_clause())
+        return cypher
+
+    def find_officer_group(self, officer_id):
+        for officer_group in self.officer_groups.values():
+            if officer_id in officer_group.officer_ids:
+                return officer_group
+        return None
+
+    def grouped_relationship_cyphers(self):
+        cypher = ''
+
+        for relationship in self.relationships:
+            if isinstance(relationship, relationship_factory.appointment):
+                officer_group = self.find_officer_group(relationship.parent_id)
+                if officer_group is None:
+                    pass
+                else:
+                    relationship.parent_node_name = officer_group.node_name()
+
+            if isinstance(relationship, relationship_factory.donation):
+                officer_group = self.find_officer_group(relationship.parent_id)
+                if officer_group is None:
+                    pass
+                else:
+                    relationship.parent_node_name = officer_group.node_name()
+
+            cypher += '\n {clause}'.format(clause=relationship.render_create_clause())
+
+        return cypher
+
+    def officer_is_grouped(self, officer):
+
+        for officer_group in self.officer_groups.values():
+            if officer.node_id in officer_group.officer_ids:
+                return True
+        return False
+
+    def grouped_node_cyphers(self):
+        node_cyphers = []
+
+        for node in self.nodes.values():
+            if isinstance(node, node_factory.officer) and self.officer_is_grouped(node):
+                continue
+            else:
+                node_cyphers.append(node.render_create_clause())
+
+        return node_cyphers
+
+    def render_create_cypher(self, group_officers=False):
+
+        if group_officers:
+            node_cyphers = self.grouped_node_cyphers()
+        else:
+            node_cyphers = self.standard_node_cyphers()
 
         nodes_string = ''
 
-        for i in range(len(nodes)):
+        for i in range(len(node_cyphers)):
             if i > 0:
                 nodes_string += ', '
 
-            nodes_string += '{node}'.format(node=nodes[i])
+            nodes_string += '{node}'.format(node=node_cyphers[i])
 
         cypher_string = '''
         CREATE {nodes}
         '''.format(nodes=nodes_string)
 
-        for relationship in self.relationships:
-            cypher_string += '\n {clause}'.format(clause=relationship.render_create_clause())
+        if group_officers:
+            relationship_cyphers = self.grouped_relationship_cyphers()
+        else:
+            relationship_cyphers = self.standard_relationship_cyphers()
+
+        cypher_string += relationship_cyphers
 
         return cypher_string
 
+    # todo update this
     def to_dataframes(self):
         df_dict = {'officers': pd.DataFrame([o.to_flat_dict() for o in self.officers.values()]).drop(
             columns=['items', 'links_self']),
             'companies': pd.DataFrame(c.to_flat_dict() for c in self.companies.values()),
             'appointments': pd.DataFrame([a.to_flat_dict() for a in self.appointments]),
-            'doppelgangers': pd.DataFrame([d.to_flat_dict() for d in self.doppelgangers])
         }
         return df_dict
 
@@ -226,7 +307,6 @@ class Network:
 
         requests_count = network.process_new_officers(requests_count)
 
-
         return network, requests_count
 
     def process_new_officers(self, requests_count):
@@ -247,10 +327,6 @@ class Network:
 
         for company in new_companies:
             self.add_company(company)
-
-    def make_doppelganger_connection(self, parent_node_name, child_node_name):
-
-        self.doppelgangers.append(Doppelganger(parent_node_name, child_node_name, **{}))
 
     def expand_network(self, appointments_limit, requests_count, layers=1):
         new_companies = self.companies.values()
@@ -294,7 +370,9 @@ class Network:
             else:
                 company = self.companies[company_number]
 
-            appointment = Appointment(parent_node_name=officer.node_name(), child_node_name=company.node_name(), **item)
+            appointment = Appointment(parent_node_name=officer.node_name(), child_node_name=company.node_name(),
+                                      parent_id=officer.node_id, child_id=company.node_id,
+                                      **item)
             self.add_appointment(appointment)
 
         return new_companies, requests_count
@@ -303,3 +381,7 @@ class Network:
         for officer in officers:
             self.add_officer(officer)
 
+    def group_officers(self, officer_ids, group_name):
+        officer_group = OfficerGroup(officer_ids=officer_ids, name=group_name)
+
+        self.add_officer_group(officer_group)

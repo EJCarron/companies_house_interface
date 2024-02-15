@@ -13,10 +13,10 @@ def save_xlsx(network, path):
     network.save_xlsx(path)
 
 
-def save_neo4j(network, config, overwrite_neo4j):
+def save_neo4j(network, config, overwrite_neo4j, group_officers):
     graphDB_Driver = GraphDatabase.driver(config.uri, auth=(config.username, config.pw))
 
-    create_cypher = network.render_create_cypher()
+    create_cypher = network.render_create_cypher(group_officers=group_officers)
 
     with graphDB_Driver.session() as graphDB_Session:
 
