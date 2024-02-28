@@ -68,7 +68,7 @@ def createnetwork(officer_ids=None, company_numbers=None, layers=0, appointments
 
     if save_neo4j:
         try:
-            save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j)
+            save_network.save_neo4j(network=network, config=config, overwrite_neo4j=overwrite_neo4j, group_officers=False)
         except Exception as e:
             click.echo("Failed to save neo4j graph db")
             click.echo(e)

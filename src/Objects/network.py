@@ -81,13 +81,13 @@ class Network:
             sys.exit()
 
         for oid in officer_group.officer_ids:
-            for current_officer_group in self.officer_groups:
+            for current_officer_group in self.officer_groups.values():
                 for coid in current_officer_group.officer_ids:
                     if oid == coid:
                         print(oid + ' already exists in a current officer group, no overlaps allowed')
                         sys.exit()
 
-        self.officer_groups[officer_group.node_id] = officer_group
+        self.nodes[officer_group.node_id] = officer_group
 
     def add_company(self, company):
         self.add_node(company, node_factory.company)
@@ -108,9 +108,6 @@ class Network:
 
     def add_appointment(self, appointment):
         self.add_relationship(appointment, relationship_factory.appointment)
-
-    def add_doppelganger(self, doppelganger):
-        self.add_relationship(doppelganger, relationship_factory.doppelganger)
 
     def add_donation(self, donation):
         self.add_relationship(donation, relationship_factory.donation)
@@ -303,21 +300,24 @@ class Network:
 
         requests_count = network.expand_network(appointments_limit=appointments_limit, requests_count=requests_count)
 
-        network.add_officers(core_officers.values())
-
-        requests_count = network.process_new_officers(requests_count)
+        requests_count = network.process_new_officers(core_officers, requests_count)
 
         return network, requests_count
 
-    def process_new_officers(self, requests_count):
+    def process_new_officers(self, core_officers, requests_count):
         print("processing new officers")
 
         new_companies = []
 
-        for officer in self.officers.values():
-            officer_new_companies, requests_count = self.process_officer_appointments(officer=officer,
-                                                                                      requests_count=requests_count)
-            new_companies += officer_new_companies
+        for officer in core_officers.values():
+
+            if officer.node_id not in self.nodes.keys():
+
+                self.add_officer(officer)
+
+                officer_new_companies, requests_count = self.process_officer_appointments(officer=officer,
+                                                                                          requests_count=requests_count)
+                new_companies += officer_new_companies
 
         self.add_companies_to_network(new_companies)
 

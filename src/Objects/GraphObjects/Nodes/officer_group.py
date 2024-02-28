@@ -14,4 +14,4 @@ class OfficerGroup(Node):
         return ''.join(self.officer_ids)
 
     def render_unique_label(self):
-        return self.name + 'Group'
+        return self.name.replace(' ', '_') + 'Group'

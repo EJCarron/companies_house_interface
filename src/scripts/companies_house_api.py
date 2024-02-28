@@ -69,7 +69,6 @@ def get_company_officer_ids(company_number, appointments_limit, requests_count):
 
     return ids, requests_count
 
-
 def get_company(company_number, requests_count):
     config = helpers.get_config()
     requests_count = requests_check(requests_count)

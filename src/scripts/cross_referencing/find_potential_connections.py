@@ -25,8 +25,10 @@ def find_potential_connections(network, connections_directory, fuzz_threshold=80
         def determine_fuzz(str1, str2):
             return fuzz.token_set_ratio(str1, str2)
 
-        def find_closest(row, clean_nodes, main_nodes_dict):
-            print(row.name)
+        def find_closest(row, clean_nodes, main_nodes_dict, df_length):
+
+            doneness = (str(int((row.name/df_length)*100))+'%')
+            print(doneness, end="\r")
             closest_node = {'fuzz': 0,
                             'id': '',
                             'name': ''
@@ -50,9 +52,11 @@ def find_potential_connections(network, connections_directory, fuzz_threshold=80
 
             if find_officers:
                 pc_df = raw_df.apply(find_closest, clean_nodes=clean_officers, main_nodes_dict=network.officers,
+                                     df_length=len(raw_df),
                                      axis=1)
             elif find_companies:
                 pc_df = raw_df.apply(find_closest, clean_nodes=clean_companies, main_nodes_dict=network.companies,
+                                     df_length=len(raw_df),
                                      axis=1)
             else:
                 print('Internal error, improper use of function. No potential node selected')
@@ -67,7 +71,9 @@ def find_potential_connections(network, connections_directory, fuzz_threshold=80
 
         df = df.dropna(subset=[influence_list['reference_col']])
 
+        print('finding potential officer matches')
         company_df = make_potential_connections_df(df, find_companies=True)
+        print('find potential company matches')
         officer_df = make_potential_connections_df(df, find_officers=True)
 
         potential_officer_path = connections_directory + influence_list['potential_officer_path']

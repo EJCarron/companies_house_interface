@@ -6,8 +6,10 @@ from src.Objects.GraphObjects.Relationships import relationship_factory
 
 def add_connections_to_network(network, connections_directory):
     for influence_list in lists:
-        company_connections_df = pd.read_csv(connections_directory + influence_list['company_connections_path'])
-        officer_connections_df = pd.read_csv(connections_directory + influence_list['officer_connections_path'])
+        company_connections_df = pd.read_csv(connections_directory + influence_list['company_connections_path'],
+                                             converters={'connection_id': str})
+        officer_connections_df = pd.read_csv(connections_directory + influence_list['officer_connections_path'],
+                                             converters={'connection_id': str})
 
         company_connections = company_connections_df.to_dict('records')
         officer_connections = officer_connections_df.to_dict('records')
@@ -21,15 +23,15 @@ def add_connections_to_network(network, connections_directory):
 
                 parent_node = node_dict.get(connection['connection_id'], None)
 
-                if child_node is None:
+                if parent_node is None:
                     print('Error connection Node ID not found in network')
                     continue
 
                 new_relationship = relationship_factory.relationship_dict[influence_list['relationship_type']] \
                     (parent_node_name=parent_node.node_name(),
-                     parent_node_id=parent_node.node_id,
+                     parent_id=parent_node.node_id,
                      child_node_name=child_node.node_name(),
-                     child_node_id=child_node.node_id,
+                     child_id=child_node.node_id,
                      **connection
                      )
 

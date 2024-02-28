@@ -2,7 +2,7 @@ from collections.abc import MutableMapping
 
 
 class Graph_Object:
-    bad_name_chars = ['-', '(', ')', '.', '@', '&', '\'', '’', '/', ',', ' ']
+    bad_name_chars = ['-', '(', ')', '.', '@', '&', '\'', '’', '/', ',']
 
     @classmethod
     def clean_name(cls, dirty_name):
@@ -37,7 +37,7 @@ class Graph_Object:
     def handle_param(self, attr, value):
         value_type = type(value)
 
-        clean_attr = self.clean_name(attr)
+        clean_attr = self.clean_name(attr).replace(' ', '_')
 
         if value_type == str:
             if self.is_date_time(value):
